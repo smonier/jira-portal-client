@@ -16,7 +16,9 @@ mvn clean install
 ## Configuration
 <YOUR_INSTALL_DIR>/digital-factory-data/karaf/etc/org.jahia.se.modules.jiraportalclient.taglibs.JiraIssueList.cfg
 You'll need to specify:
+
 Your Jira Software Username
+
 Your Jira Software Api Token
 
 ### screenshots
