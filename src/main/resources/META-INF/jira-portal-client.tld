@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+        version="2.0">
+
+    <description>Jira Software Tag Library</description>
+    <display-name>Jira Software</display-name>
+    <tlib-version>1.0</tlib-version>
+    <short-name>jiraSoftware</short-name>
+    <uri>http://www.jahia.org/tags/jiraIssuesList</uri>
+    <function>
+        <description>Get Jira Issues</description>
+        <name>getJiraIssues</name>
+        <function-class>org.jahia.se.modules.jiraportalclient.taglibs.JiraIssueList</function-class>
+        <function-signature>java.util.List getJiraIssues(java.lang.String,java.lang.String)</function-signature>
+    </function>
+</taglib>

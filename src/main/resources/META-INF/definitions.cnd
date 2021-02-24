@@ -1,0 +1,11 @@
+<jnt = 'http://www.jahia.org/jahia/nt/1.0'>
+<jmix = 'http://www.jahia.org/jahia/mix/1.0'>
+<jpcnt = 'http://www.jahia.org/jahia/jpcnt/1.0'>
+<jpcmix = 'http://www.jahia.org/jahia/jpcmix/1.0'>
+
+[jpcmix:jiraDashboard] > jmix:droppableContent, jmix:editorialContent mixin
+
+
+[jpcnt:jiraProjectIssuesList] > jnt:content, mix:title, jpcmix:jiraDashboard
+ - instanceName (String)
+ - projectName (String)

@@ -1,0 +1,13 @@
+{
+  "label": {
+    "settings": {
+      "title": "Jira Portal Client setting"
+    },
+    "action": {
+      "title": "Jira Portal Client - How to extend the ui ?"
+    },
+    "appsAccordion": {
+      "title": "Jira Portal Client"
+    }
+  }
+}
