@@ -1,0 +1,238 @@
+/*.profile-loaded-subscriber > .profile-data{
+    max-width: 400px;
+}
+
+.profile-loaded-subscriber > .profile-data img{
+    border-radius: 50%;
+    border: 2px solid #ff8201;
+}*/
+
+/*Profile Card 1*/
+.profile-card-1 {
+    font-family: 'Open Sans', Arial, sans-serif;
+    position: relative;
+    float: left;
+    overflow: hidden;
+    width: 100%;
+    color: #ffffff;
+    text-align: center;
+    height:450px;
+    border:none;
+}
+.profile-card-1 .background {
+    width:100%;
+    vertical-align: top;
+    opacity: 0.9;
+    -webkit-filter: blur(5px);
+    filter: blur(5px);
+    -webkit-transform: scale(1.8);
+    transform: scale(2.8);
+}
+.profile-card-1 .card-content {
+    width: 100%;
+    padding: 15px 25px;
+    position: absolute;
+    left: 0;
+    top: 35%;
+}
+.profile-card-1 .profile {
+    border-radius: 50%;
+    position: absolute;
+    bottom: 65%;
+    left: 50%;
+    max-width: 100px;
+    opacity: 1;
+    box-shadow: 3px 3px 20px rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(255, 255, 255, 1);
+    -webkit-transform: translate(-50%, 0%);
+    transform: translate(-50%, 0%);
+}
+.profile-card-1 h2 {
+    margin: 0 0 5px;
+    font-weight: 600;
+    font-size:25px;
+}
+.profile-card-1 h2 small {
+    display: block;
+    font-size: 15px;
+    margin-top:10px;
+}
+.profile-card-1 i {
+    display: inline-block;
+    font-size: 16px;
+    color: #ffffff;
+    text-align: center;
+    border: 1px solid #fff;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 50%;
+    margin:0 5px;
+}
+.profile-card-1 .icon-block{
+    float:left;
+    width:100%;
+    margin-top:15px;
+}
+.profile-card-1 .icon-block a{
+    text-decoration:none;
+}
+.profile-card-1 i:hover {
+    background-color:#fff;
+    color:#2E3434;
+    text-decoration:none;
+}
+.module_header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 10px 0px;
+    vertical-align: middle;
+}
+.module_title {
+    flex-grow: 0;
+    padding-right: 10px;
+    font-weight: 400;
+    font-size: 22px;
+    line-height: 30.9px;
+    margin-bottom: .5rem;
+    font-family: inherit;
+    color: inherit;
+}
+
+.module_divider {
+    flex-grow: 1;
+    height: 2px;
+    background-color: #666;
+}
+
+.module_body {
+    font-weight: 300;
+    font-size: 16px;
+    line-height: 22.5px;
+    padding: 15px 15px;
+    box-shadow: 0 0 11px rgb(33 33 33 / 20%);
+    border-radius: .25rem;
+    height: 275px;
+}
+
+.module_body_noheight{
+    font-weight: 300;
+    line-height: 22.5px;
+    padding: 15px 15px;
+    box-shadow: 0 0 11px rgb(33 33 33 / 20%);
+    border-radius: .25rem;
+}
+
+.userGreeting {
+    margin-bottom: .5rem;
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1.2;
+    color: inherit;
+    font-size: 22px;
+    width: 100%;
+}
+.userTable {
+    display: table;
+    width: 100%;
+}
+
+.userPicCol {
+    display: table-cell;
+    width: 120px !important;
+    height: 130px !important;
+    vertical-align: middle;
+    text-align: center;
+    padding: 5px;
+}
+.userPicCol img {
+    vertical-align: middle;
+}
+
+.profile-picture {
+    border-radius: 50%;
+    width: 110px;
+    margin: 0;
+}
+.userCol {
+    display: table-cell;
+}
+
+.profileTable {
+    display: table;
+    width: 100%;
+    border-spacing: 10px;
+}
+
+.profileRow {
+    display: table-row;
+}
+
+/* The customcheck */
+.customcheck {
+    display: block;
+    position: relative;
+    padding-left: 35px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 22px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Hide the browser's default checkbox */
+.customcheck input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Create a custom checkbox */
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 25px;
+    width: 25px;
+    background-color: #eee;
+    border-radius: 5px;
+}
+
+/* On mouse-over, add a grey background color */
+.customcheck:hover input ~ .checkmark {
+    background-color: #ccc;
+}
+
+/* When the checkbox is checked, add a blue background */
+.customcheck input:checked ~ .checkmark {
+    background-color: #02cf32;
+    border-radius: 5px;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+/* Show the checkmark when checked */
+.customcheck input:checked ~ .checkmark:after {
+    display: block;
+}
+
+/* Style the checkmark/indicator */
+.customcheck .checkmark:after {
+    left: 9px;
+    top: 5px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
