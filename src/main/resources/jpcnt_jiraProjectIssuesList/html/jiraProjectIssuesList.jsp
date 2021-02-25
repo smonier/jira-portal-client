@@ -104,7 +104,12 @@
                 "bFilter": true,
                 "bInfo": true,
                 scrollY: scrollHeight,
-                columnDefs: [{width: "16%", targets: 0}]
+                columnDefs: [{width: "5%", targets: 0}],
+                language: {
+                    emptyTable: 'No Tickets found'
+                },
+                lengthChange: false,
+                pageLength: 5
             }
         );
         $( table.table().container() ).removeClass( 'form-inline' );

@@ -21,7 +21,7 @@ jiraLogin=<JIRA_SOFTWARE_USERNAME>
 jiraToken=<JIRA_SOFTWARE_API_TOKEN>
 ```
 ### screenshots
-![picture](./src/main/resources/images/jiraTicketsTable.png)
+![picture](./src/main/resources/images/jiraIssuesTable.png)
 
 
 
