@@ -1,10 +1,15 @@
-package org.jahia.se.modules.jiraportalclient.classes;
+package org.jahia.se.modules.jiraportalclient.model;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Map;
 
-public class JiraIssue implements Serializable {
+@JsonDeserialize(using = JiraIssueDeserializer.class)
+public class JiraIssue {
 
     private String type;
     private String typeIconUrl;
@@ -18,7 +23,10 @@ public class JiraIssue implements Serializable {
     private String dateCreated;
     private String dateModified;
 
-    public JiraIssue(String type, String key, String summary, String assignee, String reporter, String priority, String status, String dateCreated, String dateModified, String priorityIconUrl, String typeIconUrl) {
+
+//    public JiraIssue(String type, String key, String summary, String assignee, String reporter, String priority, String status, String dateCreated, String dateModified, String priorityIconUrl, String typeIconUrl) {
+
+    public JiraIssue() {
         this.type = type;
         this.typeIconUrl = typeIconUrl;
         this.key = key;
@@ -31,6 +39,7 @@ public class JiraIssue implements Serializable {
         this.dateCreated = dateCreated;
         this.dateModified = dateModified;
     }
+
 
 
     public String getType() {
