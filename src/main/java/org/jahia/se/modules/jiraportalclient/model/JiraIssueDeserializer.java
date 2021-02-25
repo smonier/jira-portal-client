@@ -6,14 +6,10 @@ import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import org.jahia.se.modules.jiraportalclient.taglibs.JiraIssueList;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map;
+
 
 public class JiraIssueDeserializer extends StdDeserializer<JiraIssue> {
     private static Logger logger = LoggerFactory.getLogger(JiraIssueDeserializer.class);

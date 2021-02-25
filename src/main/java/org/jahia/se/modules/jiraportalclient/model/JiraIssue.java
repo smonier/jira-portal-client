@@ -1,12 +1,9 @@
 package org.jahia.se.modules.jiraportalclient.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.Map;
+
 
 @JsonDeserialize(using = JiraIssueDeserializer.class)
 public class JiraIssue {
@@ -24,7 +21,7 @@ public class JiraIssue {
     private String dateModified;
 
 
-//    public JiraIssue(String type, String key, String summary, String assignee, String reporter, String priority, String status, String dateCreated, String dateModified, String priorityIconUrl, String typeIconUrl) {
+//  public JiraIssue(String type, String key, String summary, String assignee, String reporter, String priority, String status, String dateCreated, String dateModified, String priorityIconUrl, String typeIconUrl) {
 
     public JiraIssue() {
         this.type = type;
