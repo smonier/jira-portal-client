@@ -19,6 +19,13 @@
 <%--@elvariable id="renderContext" type="org.jahia.services.render.RenderContext"--%>
 <%--@elvariable id="currentResource" type="org.jahia.services.render.Resource"--%>
 <%--@elvariable id="url" type="org.jahia.services.render.URLGenerator"--%>
+<template:addResources type="css" resources="datatables/css/bootstrap-theme.css"/>
+<template:addResources type="css" resources="typeahead.css"/>
+<template:addResources type="css" resources="jquery.dataTables.min.css"/>
+<template:addResources type="javascript" resources="jquery.min.js"/>
+<template:addResources type="javascript" resources="jquery-ui.min.js,jquery.blockUI.js,workInProgress.js"/>
+<template:addResources type="javascript"
+                       resources="datatables/jquery.dataTables.min.js,datatables/dataTables.bootstrap-ext.js,i18n/jquery.dataTables-${currentResource.locale}.js,datatables/dataTables.i18n-sorting-ext.js,settings/dataTables.initializer.js"/>
 <template:addResources type="css" resources="userdata.css"/>
 
 
@@ -74,7 +81,6 @@
 </div>
 
 
-
 <script>
     function resizePage() {
         const container = $("tableContainer-${currentNode.UUID}");
@@ -87,10 +93,11 @@
     $(window).resize(function () {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(resizePage, 100);
+
     });
 
     function updateDataTable(scrollHeight) {
-        $('#jiraIssueList-${currentNode.UUID}').DataTable(
+        var table = $('#jiraIssueList-${currentNode.UUID}').DataTable(
             {
                 destroy: true,
                 paging: true,
@@ -100,10 +107,12 @@
                 columnDefs: [{width: "16%", targets: 0}]
             }
         );
+        $( table.table().container() ).removeClass( 'form-inline' );
     }
 
     $(document).ready(function () {
         updateDataTable('1px'); // give it any height, it will be changed by the timer event, but it needs some size for the page to work
         resizeTimer = setTimeout(resizePage, 100);
+
     });
 </script>
