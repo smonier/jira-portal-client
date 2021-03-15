@@ -44,81 +44,73 @@
         please contact the sales department at sales@jahia.com.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                      http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <artifactId>jahia-modules</artifactId>
-        <groupId>org.jahia.modules</groupId>
-        <version>8.0.1.0</version>
-    </parent>
-    <groupId>org.se.modules</groupId>
-    <artifactId>jira-portal-client</artifactId>
-    <name>Jira Portal Client</name>
-    <version>1.0.0-SNAPSHOT</version>
-    <packaging>bundle</packaging>
-    <description>This is the custom module (Jira Portal Client) for running on a Jahia server.</description>
-
-    <scm>
-        <connection>scm:dummy:uri</connection>
-        <developerConnection>scm:dummy:uri</developerConnection>
-    </scm>
-    <properties>
-        <jahia-depends>default</jahia-depends>
-    </properties>
-    <dependencies>
-
-    </dependencies>
-    <repositories>
-        <repository>
-            <id>jahia-public</id>
-            <name>Jahia Public Repository</name>
-            <url>https://devtools.jahia.com/nexus/content/groups/public</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>apache-public</id>
-            <name>Apache Public Repository</name>
-            <url>https://repository.apache.org/content/groups/public</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-
-    </repositories>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <version>3.5.1</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <DynamicImport-Package>com.hazelcast.config;version="[3.7,4)",com.hazelcast.core;version="[3.7,4)"</DynamicImport-Package>
-                    </instructions>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>biz.aQute.bnd</groupId>
-                        <artifactId>biz.aQute.bndlib</artifactId>
-                        <version>4.3.1</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-        </plugins>
-    </build>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.jahia.modules</groupId>
+    <artifactId>jahia-modules</artifactId>
+    <version>8.0.1.0</version>
+  </parent>
+  <groupId>org.se.modules</groupId>
+  <artifactId>jira-portal-client</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>bundle</packaging>
+  <name>Jira Portal Client</name>
+  <description>This is the custom module (Jira Portal Client) for running on a Jahia server.</description>
+  <scm>
+    <connection>scm:git:https://github.com/smonier/jira-portal-client.git</connection>
+    <developerConnection>scm:git:https://github.com/smonier/jira-portal-client.git</developerConnection>
+  </scm>
+  <properties>
+    <jahia-depends>default</jahia-depends>
+  </properties>
+  <repositories>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>jahia-public</id>
+      <name>Jahia Public Repository</name>
+      <url>https://devtools.jahia.com/nexus/content/groups/public</url>
+    </repository>
+    <repository>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>apache-public</id>
+      <name>Apache Public Repository</name>
+      <url>https://repository.apache.org/content/groups/public</url>
+    </repository>
+  </repositories>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <version>3.5.1</version>
+        <extensions>true</extensions>
+        <dependencies>
+          <dependency>
+            <groupId>biz.aQute.bnd</groupId>
+            <artifactId>biz.aQute.bndlib</artifactId>
+            <version>4.3.1</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <instructions>
+            <DynamicImport-Package>com.hazelcast.config;version="[3.7,4)",com.hazelcast.core;version="[3.7,4)"</DynamicImport-Package>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
