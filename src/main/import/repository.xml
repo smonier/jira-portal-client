@@ -10,7 +10,7 @@
          <sources jcr:mixinTypes="jmix:hasExternalProviderExtension jmix:sourceControl"
                   jcr:primaryType="jnt:moduleVersionFolder"
                   j:staticMountPointProviderKey="module-jira-portal-client-1.0.0-SNAPSHOT">
-            <pom.xml jcr:primaryType="jnt:xmlFile"/>
+            <pom.xml jcr:mixinTypes="jmix:sourceControl" jcr:primaryType="jnt:xmlFile"/>
             <src jcr:mixinTypes="jmix:hasExternalProviderExtension jmix:sourceControl"
                  jcr:primaryType="jnt:folder">
                <main jcr:mixinTypes="jmix:hasExternalProviderExtension jmix:sourceControl"
