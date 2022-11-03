@@ -9,7 +9,7 @@
 <%@ taglib prefix="query" uri="http://www.jahia.org/tags/queryLib" %>
 <%@ taglib prefix="utility" uri="http://www.jahia.org/tags/utilityLib" %>
 <%@ taglib prefix="s" uri="http://www.jahia.org/tags/search" %>
-<%@ taglib prefix="jira" uri="http://www.jahia.org/tags/jiraIssuesList" %>
+<%@ taglib prefix="jira" uri="https://www.jahia.org/tags/jiraIssuesList" %>
 
 <%--@elvariable id="currentNode" type="org.jahia.services.content.JCRNodeWrapper"--%>
 <%--@elvariable id="out" type="java.io.PrintWriter"--%>
@@ -19,21 +19,21 @@
 <%--@elvariable id="renderContext" type="org.jahia.services.render.RenderContext"--%>
 <%--@elvariable id="currentResource" type="org.jahia.services.render.Resource"--%>
 <%--@elvariable id="url" type="org.jahia.services.render.URLGenerator"--%>
-<template:addResources type="css" resources="datatables/css/bootstrap-theme.css"/>
-<template:addResources type="css" resources="typeahead.css"/>
+
 <template:addResources type="css" resources="jquery.dataTables.min.css"/>
-<template:addResources type="javascript" resources="jquery.min.js"/>
-<template:addResources type="javascript" resources="jquery-ui.min.js,jquery.blockUI.js,workInProgress.js"/>
-<template:addResources type="javascript"
-                       resources="datatables/jquery.dataTables.min.js,datatables/dataTables.bootstrap-ext.js,i18n/jquery.dataTables-${currentResource.locale}.js,datatables/dataTables.i18n-sorting-ext.js,settings/dataTables.initializer.js"/>
-<template:addResources type="css" resources="userdata.css"/>
+<template:addResources type="javascript" resources="jquery.dataTables.min.js"/>
 
 
 <c:set var="title" value="${currentNode.properties['jcr:title'].string}"/>
 <c:set var="jiraInstance" value="${currentNode.properties['instanceName'].string}"/>
 <c:set var="jiraProject" value="${currentNode.properties['projectName'].string}"/>
+<c:set var="activateButton" value="${currentNode.properties['activateButton'].string}"/>
+<c:set var="buttonLabel" value="${currentNode.properties['buttonLabel'].string}"/>
 
-<c:set var="jiraIssueList" value="${jira:getJiraIssues(jiraInstance,jiraProject)}"/>
+<c:set var="context" value="${renderContext}"/>
+
+
+<c:set var="jiraIssueList" value="${jira:getJiraTickets(jiraInstance,jiraProject,context)}"/>
 
 <div id="tableContainer-${currentNode.UUID}">
     <div class="module_header">
@@ -42,6 +42,15 @@
         </div>
     </div>
     <div class="module_body_noheight">
+        <c:if test="${activateButton eq true}">
+
+            <div style="float:left;line-height:12px;">
+                <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#newJiraModal">
+                        ${buttonLabel}
+                </button>
+            </div>
+        </c:if>
+
         <table id="jiraIssueList-${currentNode.UUID}" class="table table-striped">
             <thead>
             <tr>
@@ -80,7 +89,25 @@
     </div>
 </div>
 
-
+<!-- Modal -->
+<div class="modal fade" id="newJiraModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Create a ${buttonLabel}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <template:area path="modalContent"/>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     function resizePage() {
         const container = $("tableContainer-${currentNode.UUID}");
@@ -101,7 +128,7 @@
             {
                 destroy: true,
                 paging: true,
-                "bFilter": true,
+                "bFilter": false,
                 "bInfo": true,
                 scrollY: scrollHeight,
                 columnDefs: [{width: "5%", targets: 0}],
@@ -112,7 +139,9 @@
                 pageLength: 5
             }
         );
-        $( table.table().container() ).removeClass( 'form-inline' );
+        // $( table.table().container() ).removeClass( 'form-inline' );
+        $("table.dataTable").css("font-size", "12px");
+        table.columns.adjust().draw();
     }
 
     $(document).ready(function () {

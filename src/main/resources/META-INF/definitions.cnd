@@ -9,3 +9,5 @@
 [jpcnt:jiraProjectIssuesList] > jnt:content, mix:title, jpcmix:jiraDashboard
  - instanceName (String)
  - projectName (String)
+ - activateButton (boolean)
+ - buttonLabel (String)

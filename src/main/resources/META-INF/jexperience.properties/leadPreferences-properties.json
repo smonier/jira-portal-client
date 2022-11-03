@@ -1,0 +1,31 @@
+{
+  "itemId": "leadPreferences",
+  "itemType": "propertyType",
+  "target": "profiles",
+  "defaultValue": null,
+  "dateRanges": [],
+  "numericRanges": [],
+  "ipRanges": [],
+  "automaticMappingsFrom": [],
+  "rank": null,
+  "mergeStrategy": null,
+  "multivalued": true,
+  "protected": false,
+  "metadata": {
+    "id": "leadPreferences",
+    "name": "Lead Preferences",
+    "description": null,
+    "scope": null,
+    "tags": [],
+    "systemTags": [
+      "cardDataTag/salesforce/3/Salesforce",
+      "positionInCard.5",
+      "hasCardDataTag"
+    ],
+    "enabled": true,
+    "missingPlugins": false,
+    "hidden": false,
+    "readOnly": false
+  },
+  "type": "string"
+}

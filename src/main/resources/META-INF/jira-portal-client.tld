@@ -8,8 +8,14 @@
     <description>Jira Software Tag Library</description>
     <display-name>Jira Software</display-name>
     <tlib-version>1.0</tlib-version>
-    <short-name>jiraSoftware</short-name>
-    <uri>http://www.jahia.org/tags/jiraIssuesList</uri>
+    <short-name>jira</short-name>
+    <uri>https://www.jahia.org/tags/jiraIssuesList</uri>
+    <function>
+        <description>Get Jira Issues</description>
+        <name>getJiraTickets</name>
+        <function-class>org.jahia.se.modules.jiraportalclient.taglibs.JiraIssueList</function-class>
+        <function-signature>java.util.List getJiraTickets(java.lang.String,java.lang.String,org.jahia.services.render.RenderContext)</function-signature>
+    </function>
     <function>
         <description>Get Jira Issues</description>
         <name>getJiraIssues</name>

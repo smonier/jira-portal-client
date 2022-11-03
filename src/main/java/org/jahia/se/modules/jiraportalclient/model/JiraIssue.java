@@ -131,10 +131,7 @@ public class JiraIssue {
         this.dateCreated = dateCreated;
     }
 
-    public void setDateModified(String dateModified) {
-
-        this.dateModified = dateModified;
-    }
+    public void setDateModified(String dateModified) { this.dateModified = dateModified; }
 
     public void setPriorityIconUrl(String priorityIconUrl) {
         this.priorityIconUrl = priorityIconUrl;
