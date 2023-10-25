@@ -35,7 +35,7 @@
 
 <c:set var="jiraIssueList" value="${jira:getJiraTickets(jiraInstance,jiraProject,context)}"/>
 
-<div id="tableContainer-${currentNode.UUID}">
+<div class="portal-header" id="tableContainer-${currentNode.UUID}">
     <div class="module_header">
         <div class="module_title">${currentNode.properties['jcr:title'].string}</div>
         <div class="module_divider">
