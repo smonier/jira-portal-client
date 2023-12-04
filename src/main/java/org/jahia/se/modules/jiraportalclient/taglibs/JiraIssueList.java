@@ -101,7 +101,7 @@ public class JiraIssueList {
                 InputStream response = http.getInputStream();
                 jsonReply = convertStreamToString(response);
                 JSONObject jiraJsonObject = new JSONObject(jsonReply);
-                JSONArray jiraIssueArray = new JSONArray(jiraJsonObject.getString("issues"));
+                JSONArray jiraIssueArray = new JSONArray(jiraJsonObject.optString("issues"));
                 try {
 
                     ObjectMapper mapper = new ObjectMapper();
@@ -121,6 +121,7 @@ public class JiraIssueList {
             return null;
         }
         logger.info("List return from: " + url);
+        logger.info("List : " + JIRAISSUE_ARRAY_LIST.toString());
 
         return JIRAISSUE_ARRAY_LIST;
     }
@@ -145,7 +146,7 @@ public class JiraIssueList {
                 InputStream response = http.getInputStream();
                 jsonReply = convertStreamToString(response);
                 JSONObject jiraJsonObject = new JSONObject(jsonReply);
-                JSONArray jiraIssueArray = new JSONArray(jiraJsonObject.getString("issues"));
+                JSONArray jiraIssueArray = new JSONArray(jiraJsonObject.optString("issues"));
                 try {
 
                     ObjectMapper mapper = new ObjectMapper();
