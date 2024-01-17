@@ -23,7 +23,7 @@ import java.util.Base64;
 import java.util.concurrent.ExecutionException;
 
 import org.jahia.se.modules.jiraportalclient.model.JiraIssue;
-import org.jahia.se.modules.jiraportalclient.functions.PortalFunctions;
+//import org.jahia.se.modules.jiraportalclient.functions.PortalFunctions;
 
 import javax.jcr.RepositoryException;
 
@@ -74,9 +74,9 @@ public class JiraIssueList {
 
         //      RenderContext renderContext = (RenderContext) pageContext.getAttribute("renderContext", PageContext.REQUEST_SCOPE);
 
-        PortalFunctions jiraProjectName = new PortalFunctions();
+/*        PortalFunctions jiraProjectName = new PortalFunctions();
 
-/*      String jiraProjectNameValue = jiraProjectName.getPropertyValue("jiraProjectName", renderContext, contextServerService);
+      String jiraProjectNameValue = jiraProjectName.getPropertyValue("jiraProjectName", renderContext, contextServerService);
         if (jiraProjectNameValue != null) {
             jiraProject = jiraProjectNameValue;
         }

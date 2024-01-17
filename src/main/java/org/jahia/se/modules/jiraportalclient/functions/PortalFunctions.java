@@ -1,7 +1,7 @@
 package org.jahia.se.modules.jiraportalclient.functions;
 
 
-import com.ning.http.client.AsyncCompletionHandler;
+/*import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.Response;
@@ -77,3 +77,4 @@ public class PortalFunctions {
         }
     }
 }
+*/
