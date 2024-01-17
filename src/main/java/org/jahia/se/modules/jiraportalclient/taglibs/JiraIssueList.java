@@ -2,7 +2,7 @@ package org.jahia.se.modules.jiraportalclient.taglibs;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jahia.modules.jexperience.admin.ContextServerService;
+//import org.jahia.modules.jexperience.admin.ContextServerService;
 import org.jahia.services.render.RenderContext;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,13 +34,13 @@ public class JiraIssueList {
 
     private static String jiraLogin;
     private static String jiraToken;
-    private static ContextServerService contextServerService;
+//    private static ContextServerService contextServerService;
 
-    @Reference(service = ContextServerService.class)
+/*     @Reference(service = ContextServerService.class)
     public void setContextServerService(ContextServerService contextServerService) {
         this.contextServerService = contextServerService;
     }
-
+*/
     @Activate
     public void activate(Map<String, ?> props) {
         try {
@@ -76,10 +76,11 @@ public class JiraIssueList {
 
         PortalFunctions jiraProjectName = new PortalFunctions();
 
-        String jiraProjectNameValue = jiraProjectName.getPropertyValue("jiraProjectName", renderContext, contextServerService);
+/*      String jiraProjectNameValue = jiraProjectName.getPropertyValue("jiraProjectName", renderContext, contextServerService);
         if (jiraProjectNameValue != null) {
             jiraProject = jiraProjectNameValue;
         }
+*/
         logger.info("Getting Jira Issues from " + jiraInstance + " for the project " + jiraProject);
 
         String jiraUrl = "https://" + jiraInstance + ".atlassian.net/rest/api/2/search?jql=project=" + jiraProject;
