@@ -10,16 +10,68 @@
     <tlib-version>1.0</tlib-version>
     <short-name>jira</short-name>
     <uri>https://www.jahia.org/tags/jiraIssuesList</uri>
+
+    <!-- getJiraIssues function definition -->
     <function>
-        <description>Get Jira Issues</description>
-        <name>getJiraTickets</name>
-        <function-class>org.jahia.se.modules.jiraportalclient.taglibs.JiraIssueList</function-class>
-        <function-signature>java.util.List getJiraTickets(java.lang.String,java.lang.String,org.jahia.services.render.RenderContext)</function-signature>
-    </function>
-    <function>
-        <description>Get Jira Issues</description>
+        <description>Get Jira Issues based on the instance and project name</description>
         <name>getJiraIssues</name>
         <function-class>org.jahia.se.modules.jiraportalclient.taglibs.JiraIssueList</function-class>
-        <function-signature>java.util.List getJiraIssues(java.lang.String,java.lang.String)</function-signature>
+        <function-signature>java.util.List getJiraIssues(java.lang.String, java.lang.String)</function-signature>
+    </function>
+
+    <!-- getJiraTickets function definition -->
+    <function>
+        <description>Get Jira Issues based on the instance, project name, and render context</description>
+        <name>getJiraTickets</name>
+        <function-class>org.jahia.se.modules.jiraportalclient.taglibs.JiraIssueList</function-class>
+        <function-signature>
+            java.util.List getJiraTickets(java.lang.String, java.lang.String, org.jahia.services.render.RenderContext)
+        </function-signature>
+    </function>
+
+    <!-- getStatusList function definition -->
+    <function>
+        <description>Get the list of available Jira statuses</description>
+        <name>getStatusList</name>
+        <function-class>org.jahia.se.modules.jiraportalclient.taglibs.JiraIssueList</function-class>
+        <function-signature>java.util.List getStatusList(java.lang.String, java.lang.String)</function-signature>
+    </function>
+
+    <!-- createIssue function definition -->
+    <function>
+        <description>Create a new Jira Issue</description>
+        <name>createIssue</name>
+        <function-class>org.jahia.se.modules.jiraportalclient.taglibs.JiraIssueList</function-class>
+        <function-signature>java.lang.String createIssue(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)</function-signature>
+    </function>
+
+    <!-- updateIssueStatus function definition -->
+    <function>
+        <description>Update Jira Issue Status based on the instance, issue key, and transition ID</description>
+        <name>updateIssueStatus</name>
+        <function-class>org.jahia.se.modules.jiraportalclient.taglibs.JiraIssueList</function-class>
+        <function-signature>boolean updateIssueStatus(java.lang.String, java.lang.String, java.lang.String)</function-signature>
+    </function>
+
+    <function>
+        <description>
+            Retrieves a list of available transitions for a given Jira issue.
+        </description>
+        <name>getAvailableTransitions</name>
+        <function-class>org.jahia.se.modules.jiraportalclient.taglibs.JiraIssueList</function-class>
+        <function-signature>
+            java.util.List getAvailableTransitions(java.lang.String, java.lang.String)
+        </function-signature>
+    </function>
+
+    <function>
+        <description>
+            Retrieves a list of issue types available for a given Jira project.
+        </description>
+        <name>getIssueTypesForProject</name>
+        <function-class>org.jahia.se.modules.jiraportalclient.taglibs.JiraIssueList</function-class>
+        <function-signature>
+            java.util.List getIssueTypesForProject(java.lang.String, java.lang.String)
+        </function-signature>
     </function>
 </taglib>
