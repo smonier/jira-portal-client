@@ -12,6 +12,7 @@ public class JiraIssue {
     private String typeIconUrl;
     private String key;
     private String summary;
+    private String description;
     private String assignee;
     private String reporter;
     private String priority;
@@ -28,6 +29,7 @@ public class JiraIssue {
         this.typeIconUrl = typeIconUrl;
         this.key = key;
         this.summary = summary;
+        this.description = description;
         this.assignee = assignee;
         this.reporter = reporter;
         this.priority = priority;
@@ -49,6 +51,10 @@ public class JiraIssue {
 
     public String getSummary() {
         return summary;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public String getAssignee() {
@@ -109,6 +115,10 @@ public class JiraIssue {
 
     public void setSummary(String summary) {
         this.summary = summary;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public void setAssignee(String assignee) {

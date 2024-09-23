@@ -20,6 +20,8 @@
 <%--@elvariable id="url" type="org.jahia.services.render.URLGenerator"--%>
 
 <template:addResources type="css" resources="jquery.dataTables.min.css"/>
+<template:addResources type="css" resources="jiraTable.css"/>
+
 <template:addResources type="javascript" resources="jquery.dataTables.min.js"/>
 
 <c:set var="title" value="${currentNode.properties['jcr:title'].string}"/>
@@ -30,6 +32,7 @@
 <c:set var="context" value="${renderContext}"/>
 <%--<c:set var="statusList" value="${['Requested', 'In Review', 'Approved', 'Rejected']}"/>--%>
 <c:set var="jiraIssueList" value="${jira:getJiraTickets(jiraInstance,jiraProject,context)}"/>
+
 
 <div class="portal-header" id="tableContainer-${currentNode.UUID}">
     <div class="module_header">
@@ -47,6 +50,7 @@
         <table id="jiraIssueList-${currentNode.UUID}" class="table table-striped">
             <thead>
             <tr>
+                <th class="dt-control"></th>
                 <th>Type</th>
                 <th>Key</th>
                 <th>Summary</th>
@@ -63,7 +67,8 @@
             <c:forEach items="${jiraIssueList}" var="jiraIssue" varStatus="status">
                 <c:set var="statusList" value="${jira:getAvailableTransitions(jiraInstance, jiraIssue.getKey())}"/>
 
-                <tr>
+                <tr class="main-row" data-description="${jiraIssue.getDescription()}">
+                    <td class="dt-control"></td>
                     <td><img height="16" width="16" src="${jiraIssue.getTypeIconUrl()}" alt="${jiraIssue.getType()}" title="${jiraIssue.getType()}"/></td>
                     <td><a href="https://${jiraInstance}.atlassian.net/browse/${jiraIssue.getKey()}">${jiraIssue.getKey()}</a></td>
                     <td>${jiraIssue.getSummary()}</td>
@@ -84,6 +89,7 @@
                     <td>${jiraIssue.getDateCreated()}</td>
                     <td>${jiraIssue.getDateModified()}</td>
                 </tr>
+
             </c:forEach>
             </tbody>
         </table>
@@ -153,46 +159,46 @@
     </div>
 </div>
 <script>
-    function resizePage() {
-        const container = $("tableContainer-${currentNode.UUID}");
-        const height = container.height() - container.find(".dataTables_scrollHead").height();
-        updateDataTable(height + "px");
-    };
-
-    var resizeTimer;
-
-    $(window).resize(function () {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(resizePage, 100);
-
-    });
-
-    function updateDataTable(scrollHeight) {
-        var table = $('#jiraIssueList-${currentNode.UUID}').DataTable(
-            {
-                destroy: true,
-                paging: true,
-                "bFilter": false,
-                "bInfo": true,
-                scrollY: scrollHeight,
-                columnDefs: [{width: "5%", targets: 0}],
-                language: {
-                    emptyTable: 'No Tickets found'
-                },
-                lengthChange: false,
-                pageLength: 10
-            }
-        );
-        // $( table.table().container() ).removeClass( 'form-inline' );
-        $("table.dataTable").css("font-size", "12px");
-        table.columns.adjust().draw();
-    }
-
     $(document).ready(function () {
-        updateDataTable('1px'); // give it any height, it will be changed by the timer event, but it needs some size for the page to work
-        resizeTimer = setTimeout(resizePage, 100);
+        // Initialize DataTables
+        var table = $('#jiraIssueList-${currentNode.UUID}').DataTable({
+            paging: true,
+            bFilter: false,
+            bInfo: true,
+            scrollY: '50vh', // Set a reasonable scroll height
+            scrollCollapse: true,
+            columnDefs: [{ width: "5%", targets: 0 }],
+            language: {
+                emptyTable: 'No Tickets found'
+            },
+            lengthChange: false,
+            pageLength: 10,
+            autoWidth: false,
+            responsive: true
+        });
 
+        // Handle click event on the control cell to toggle collapsible row
+        $('#jiraIssueList-${currentNode.UUID} tbody').on('click', '.dt-control', function () {
+            var tr = $(this).closest('tr'); // Get the current row
+            var row = table.row(tr); // Get DataTable row instance
+            var controlCell = $(this); // Get the control cell element
+
+            if (row.child.isShown()) {
+                // Hide child row and change control text
+                row.child.hide();
+                tr.removeClass('shown');
+                //controlCell.text('Show');
+            } else {
+                // Show child row with description from data attribute and change control text
+                var description = tr.data('description'); // Get description from data attribute
+                var descriptionHtml = '<div class="collapse-row"><strong>Description:</strong><br>' + description + '</div>';
+                row.child(descriptionHtml).show();
+                tr.addClass('shown');
+                //controlCell.text('Hide');
+            }
+        });
     });
+
 </script>
 
 <script>
