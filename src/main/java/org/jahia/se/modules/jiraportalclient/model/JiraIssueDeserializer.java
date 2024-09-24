@@ -26,6 +26,8 @@ public class JiraIssueDeserializer extends StdDeserializer<JiraIssue> {
     private static final String JIRAISSUE_STATUS = "/fields/status/name";
     private static final String JIRAISSUE_TYPE = "/fields/issuetype/name";
     private static final String JIRAISSUE_TYPEICONURL = "/fields/issuetype/iconUrl";
+    private static final String JIRAISSUE_EIN = "/fields/customfield_10045";
+
 
 
     public JiraIssueDeserializer() {
@@ -70,6 +72,8 @@ public class JiraIssueDeserializer extends StdDeserializer<JiraIssue> {
         jiraAsset.setType(jiraIssueType.textValue());
         JsonNode jiraIssueTypeIconUrl = jiraNode.at(JIRAISSUE_TYPEICONURL);
         jiraAsset.setTypeIconUrl(jiraIssueTypeIconUrl.textValue());
+        JsonNode jiraEin = jiraNode.at(JIRAISSUE_EIN);
+        jiraAsset.setEin(jiraEin.textValue());
         return jiraAsset;
     }
 

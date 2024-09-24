@@ -20,6 +20,7 @@ public class JiraIssue {
     private String status;
     private String dateCreated;
     private String dateModified;
+    private String ein;
 
 
 //  public JiraIssue(String type, String key, String summary, String assignee, String reporter, String priority, String status, String dateCreated, String dateModified, String priorityIconUrl, String typeIconUrl) {
@@ -37,6 +38,7 @@ public class JiraIssue {
         this.status = status;
         this.dateCreated = dateCreated;
         this.dateModified = dateModified;
+        this.ein = ein;
     }
 
 
@@ -105,6 +107,11 @@ public class JiraIssue {
         return typeIconUrl;
     }
 
+    public String getEin() {
+        return ein;
+    }
+
+
     public void setType(String type) {
         this.type = type;
     }
@@ -150,4 +157,9 @@ public class JiraIssue {
     public void setTypeIconUrl(String typeIconUrl) {
         this.typeIconUrl = typeIconUrl;
     }
+
+    public void setEin(String ein) {
+        this.ein = ein;
+    }
+
 }

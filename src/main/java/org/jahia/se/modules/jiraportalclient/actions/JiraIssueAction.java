@@ -24,7 +24,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
-import static org.jahia.se.modules.jiraportalclient.taglibs.JiraIssueList.updateIssueStatus;
 
 @Component(service = Action.class, immediate = true)
 public class JiraIssueAction extends Action {

@@ -166,40 +166,6 @@ public class JiraIssueList {
 
         return JIRAISSUE_ARRAY_LIST;
     }
-    // Method to update an existing Jira issue's status
-    public static boolean updateIssueStatus(String jiraInstance, String issueKey, String transitionId) throws IOException {
-        String jiraUrl = "https://" + jiraInstance + ".atlassian.net/rest/api/2/issue/" + issueKey + "/transitions";
-        String encoding = Base64.getEncoder().encodeToString((jiraLogin + ":" + jiraToken).getBytes("UTF-8"));
-
-        JSONObject transitionData = new JSONObject();
-        try {
-            transitionData.put("transition", new JSONObject().put("id", transitionId));
-        } catch (JSONException e) {
-            logger.error("Error creating JSON for issue transition", e);
-            return false;
-        }
-
-        URL url = new URL(jiraUrl);
-        HttpURLConnection http = (HttpURLConnection) url.openConnection();
-        http.setRequestMethod("POST");
-        http.setRequestProperty("Content-Type", "application/json");
-        http.setRequestProperty("Authorization", "Basic " + encoding);
-        http.setDoOutput(true);
-
-        try (OutputStream os = http.getOutputStream()) {
-            byte[] input = transitionData.toString().getBytes("utf-8");
-            os.write(input, 0, input.length);
-        }
-
-        int responseCode = http.getResponseCode();
-        if (responseCode == HttpURLConnection.HTTP_NO_CONTENT) {
-            logger.info("Issue " + issueKey + " status updated successfully");
-            return true;
-        } else {
-            logger.error("Failed to update issue status: HTTP error code : " + responseCode);
-            return false;
-        }
-    }
 
 
     // Method to get available statuses for a Jira project
@@ -576,6 +542,7 @@ public class JiraIssueList {
         // Add more cases for other fields as needed.
         return "="; // Default to '=' for standard fields
     }
+
     // Helper method to convert InputStream to String
     private static String convertStreamToString(InputStream is) throws IOException {
         StringBuilder sb = new StringBuilder();

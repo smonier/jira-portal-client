@@ -37,22 +37,6 @@
         <function-signature>java.util.List getStatusList(java.lang.String, java.lang.String)</function-signature>
     </function>
 
-    <!-- createIssue function definition -->
-    <function>
-        <description>Create a new Jira Issue</description>
-        <name>createIssue</name>
-        <function-class>org.jahia.se.modules.jiraportalclient.taglibs.JiraIssueList</function-class>
-        <function-signature>java.lang.String createIssue(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)</function-signature>
-    </function>
-
-    <!-- updateIssueStatus function definition -->
-    <function>
-        <description>Update Jira Issue Status based on the instance, issue key, and transition ID</description>
-        <name>updateIssueStatus</name>
-        <function-class>org.jahia.se.modules.jiraportalclient.taglibs.JiraIssueList</function-class>
-        <function-signature>boolean updateIssueStatus(java.lang.String, java.lang.String, java.lang.String)</function-signature>
-    </function>
-
     <function>
         <description>
             Retrieves a list of available transitions for a given Jira issue.
@@ -94,6 +78,7 @@
         <function-class>org.jahia.se.modules.jiraportalclient.taglibs.JiraIssueList</function-class>
         <function-signature>
             java.util.List getIssuesByCustomField(java.lang.String, java.lang.String, org.jahia.services.render.RenderContext)
+          
         </function-signature>
     </function>
 </taglib>

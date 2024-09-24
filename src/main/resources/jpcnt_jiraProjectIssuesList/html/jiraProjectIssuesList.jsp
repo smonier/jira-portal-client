@@ -56,7 +56,7 @@
                 <th>Key</th>
                 <th>Summary</th>
                 <th>Assignee</th>
-                <th>Reporter</th>
+                <th>EIN</th>
                 <th>Priority</th>
                 <th>Status</th>
                 <th>Change Status</th>
@@ -84,7 +84,7 @@
                     <td><a href="https://${jiraInstance}.atlassian.net/browse/${jiraIssue.getKey()}">${jiraIssue.getKey()}</a></td>
                     <td>${jiraIssue.getSummary()}</td>
                     <td>${jiraIssue.getAssignee()}</td>
-                    <td>${jiraIssue.getReporter()}</td>
+                    <td>${jiraIssue.getEin()}</td>
                     <td><img height="16" width="16" src="${jiraIssue.getPriorityIconUrl()}" alt="${jiraIssue.getPriority()}" title="${jiraIssue.getPriority()}"/></td>
                     <td>${jiraIssue.getStatus()}</td>
                     <td>
