@@ -167,6 +167,51 @@ public class JiraIssuesServiceImpl implements JiraIssueService, ManagedService {
         }
     }
 
+    /**
+     * Adds a comment to a specific Jira issue.
+     *
+     * @param jiraInstance the Jira instance (e.g., "yourInstance" in "yourInstance.atlassian.net")
+     * @param issueKey     the key of the Jira issue (e.g., "PROJECT-123")
+     * @param commentText  the comment text to add to the issue
+     * @return true if the comment was successfully added, false otherwise
+     */
+    @Override
+    public boolean addCommentToIssue(String jiraInstance, String issueKey, String commentText) {
+        String jiraUrl = "https://" + jiraInstance + ".atlassian.net/rest/api/2/issue/" + issueKey + "/comment";
+        String encoding = Base64.getEncoder().encodeToString((jiraLogin + ":" + jiraToken).getBytes());
+
+        try {
+            // Create JSON object for the comment
+            JSONObject commentData = new JSONObject();
+            commentData.put("body", commentText);
+
+            // Set up the connection to the Jira REST API
+            URL url = new URL(jiraUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Authorization", "Basic " + encoding);
+            connection.setDoOutput(true);
+
+            // Write the JSON data to the request body
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = commentData.toString().getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+
+            // Get the response code to check if the request was successful
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_CREATED) {
+                System.out.println("Comment added successfully to issue " + issueKey);
+                return true;
+            } else {
+                System.err.println("Failed to add comment: HTTP error code " + responseCode);
+            }
+        } catch (Exception e) {
+            System.err.println("Error adding comment to issue: " + e.getMessage());
+        }
+        return false;
+    }
 
     // Helper method to convert InputStream to String
     private String convertStreamToString(InputStream is) throws IOException {

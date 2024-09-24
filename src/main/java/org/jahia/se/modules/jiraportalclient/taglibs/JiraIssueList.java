@@ -17,10 +17,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Base64;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import org.jahia.se.modules.jiraportalclient.model.JiraIssue;
@@ -397,18 +396,101 @@ public class JiraIssueList {
                     issueTypesList.add(issueType);
                 }
 
-                System.out.println("Issue Types: " + issueTypesList);
+                logger.info("Issue Types: " + issueTypesList);
 
             } else {
                 InputStream errorStream = http.getErrorStream();
                 String errorResponse = convertStreamToString(errorStream);
-                System.err.println("Failed to get issue types: HTTP error code : " + responseCode + ", Response: " + errorResponse);
+                logger.error("Failed to get issue types: HTTP error code : " + responseCode + ", Response: " + errorResponse);
             }
         } catch (IOException | JSONException e) {
-            System.err.println("Error connecting to Jira: " + e.getMessage());
+            logger.error("Error connecting to Jira: " + e.getMessage());
         }
 
         return issueTypesList;
+    }
+
+    public static List<String> getIssueActivities(String jiraInstance, String issueKey) throws IOException {
+        List<String> activities = new ArrayList<>();
+
+        // Jira API URL for issue activities (comments and change history)
+        String commentsUrl = "https://" + jiraInstance + ".atlassian.net/rest/api/2/issue/" + issueKey + "/comment";
+       // String changelogUrl = "https://" + jiraInstance + ".atlassian.net/rest/api/2/issue/" + issueKey + "?expand=changelog";
+        String encoding = Base64.getEncoder().encodeToString((jiraLogin + ":" + jiraToken).getBytes("UTF-8"));
+
+        // Fetch comments
+        activities.addAll(fetchActivitiesFromUrl(commentsUrl, encoding, "comments"));
+
+        // Fetch changelog (history)
+     //   activities.addAll(fetchActivitiesFromUrl(changelogUrl, encoding, "changelog"));
+
+        return activities;
+    }
+
+    /**
+     * Fetches activity details from a given Jira API URL.
+     *
+     * @param apiUrl   the Jira API URL to fetch data from
+     * @param encoding the base64 encoded authentication string
+     * @param type     the type of activity to fetch ("comments" or "changelog")
+     * @return a list of activity details
+     * @throws IOException if there is an issue with the network connection or data processing
+     */
+    private static List<String> fetchActivitiesFromUrl(String apiUrl, String encoding, String type) throws IOException {
+        List<String> activities = new ArrayList<>();
+        URL url = new URL(apiUrl);
+
+        try {
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Authorization", "Basic " + encoding);
+            connection.setRequestProperty("Content-Type", "application/json");
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                InputStream inputStream = connection.getInputStream();
+                String jsonResponse = convertStreamToString(inputStream);
+                JSONObject responseObject = new JSONObject(jsonResponse);
+
+                if (type.equals("comments")) {
+                    JSONArray commentsArray = responseObject.getJSONArray("comments");
+                    for (int i = 0; i < commentsArray.length(); i++) {
+                        JSONObject comment = commentsArray.getJSONObject(i);
+                        String commentBody = comment.getString("body");
+                        String author = comment.getJSONObject("author").getString("displayName");
+                        String created = comment.getString("created");
+
+                        activities.add("Comment by " + author + " on " + formatDate(created)+" : " + commentBody);
+                    }
+                } else if (type.equals("changelog")) {
+                    JSONObject changelogObject = responseObject.getJSONObject("changelog");
+                    JSONArray historyArray = changelogObject.getJSONArray("histories");
+                    for (int i = 0; i < historyArray.length(); i++) {
+                        JSONObject history = historyArray.getJSONObject(i);
+                        String created = history.getString("created");
+                        String user = history.getJSONObject("author").getString("displayName");
+                        JSONArray itemsArray = history.getJSONArray("items");
+                        for (int j = 0; j < itemsArray.length(); j++) {
+                            JSONObject item = itemsArray.getJSONObject(j);
+                            String field = item.getString("field");
+                            String fromString = item.optString("fromString", "none");
+                            String toString = item.getString("toString");
+                            activities.add("Change by " + user + " on " + created + ": " + field + " changed from '" + fromString + "' to '" + toString + "'");
+                        }
+                    }
+                }
+            } else {
+                logger.error("Failed to fetch activities: HTTP error code " + responseCode);
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+
+        return activities;
     }
 
     // Helper method to convert InputStream to String
@@ -421,4 +503,26 @@ public class JiraIssueList {
         }
         return sb.toString();
     }
+
+    /**
+     * Formats a given date string in the format "yyyy-MM-dd'T'HH:mm:ss.SSSZ" to "MM:dd:yyyy hh:mm".
+     *
+     * @param dateString the input date string in the format "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+     * @return the formatted date string in the format "MM:dd:yyyy hh:mm"
+     * @throws ParseException if the input date string is not in the expected format
+     */
+    public static String formatDate(String dateString) throws ParseException {
+        // Input format matching the provided date string
+        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+
+        // Desired output format
+        SimpleDateFormat outputFormat = new SimpleDateFormat("MMM. dd yyyy 'at' hh:mm");
+
+        // Parse the input date string to a Date object
+        Date date = inputFormat.parse(dateString);
+
+        // Format the Date object to the desired output format
+        return outputFormat.format(date);
+    }
+
 }

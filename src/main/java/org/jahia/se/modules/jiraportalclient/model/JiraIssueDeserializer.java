@@ -18,6 +18,7 @@ public class JiraIssueDeserializer extends StdDeserializer<JiraIssue> {
     private static final String JIRAISSUE_DATECREATED = "/fields/created";
     private static final String JIRAISSUE_DATEMODIFIED = "/fields/updated";
     private static final String JIRAISSUE_SUMMARY = "/fields/summary";
+    private static final String JIRAISSUE_DESCRIPTION = "/fields/description";
     private static final String JIRAISSUE_PRIORITY = "/fields/priority/name";
     private static final String JIRAISSUE_PRIORITYICONURL = "/fields/priority/iconUrl";
     private static final String JIRAISSUE_ASSIGNEE = "/fields/assignee/displayName";
@@ -53,6 +54,8 @@ public class JiraIssueDeserializer extends StdDeserializer<JiraIssue> {
         jiraAsset.setDateModified(jiraIssueDateModified.textValue());
         JsonNode jiraIssueSummary = jiraNode.at(JIRAISSUE_SUMMARY);
         jiraAsset.setSummary(jiraIssueSummary.textValue());
+        JsonNode jiraIssueDescription = jiraNode.at(JIRAISSUE_DESCRIPTION);
+        jiraAsset.setDescription(jiraIssueDescription.textValue());
         JsonNode jiraIssuePriority = jiraNode.at(JIRAISSUE_PRIORITY);
         jiraAsset.setPriority(jiraIssuePriority.textValue());
         JsonNode jiraIssuePriorityIconUrl = jiraNode.at(JIRAISSUE_PRIORITYICONURL);
