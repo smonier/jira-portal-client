@@ -13,11 +13,19 @@ import org.json.JSONObject;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.unomi.api.CustomItem;
+import org.apache.unomi.api.Event;
+import org.apache.unomi.api.Item;
+import org.apache.unomi.api.Profile;
 
 import javax.jcr.RepositoryException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Date;
 import java.util.concurrent.ExecutionException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 @Component
 public class PortalFunctions {
@@ -75,5 +83,33 @@ public class PortalFunctions {
         } else {
             return null;
         }
+    }
+
+    public Event updateProfile(JSONObject dmpVal, String siteKey) throws JSONException {
+
+        Item source = new CustomItem();
+        source.setScope(siteKey);
+        source.setItemId("wemProfile");
+        source.setItemType("wemProfile");
+
+        Event event =
+                new Event("updateProperties", null, new Profile(), siteKey, source, null, new Date());
+
+        Map<String, Object> map = createMap(dmpVal);
+
+        event.setProperty("update", map);
+        event.setProperty("targetType", Profile.ITEM_TYPE);
+
+        return event;
+    }
+
+    private Map<String, Object> createMap(JSONObject dmpVal) throws JSONException {
+        Map<String, Object> map = new HashMap<>();
+        Iterator<String> keys = dmpVal.keys();
+        while (keys.hasNext()) {
+            String key = keys.next();
+            map.put("properties." + key, dmpVal.get(key));
+        }
+        return map;
     }
 }

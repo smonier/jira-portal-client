@@ -116,6 +116,25 @@ public class JiraIssueAction extends Action {
                         resp.put("message", "Failed to update issue status.");
                     }
                     break;
+
+                case "addComment":
+                    String commentText = parameters.get("commentText").get(0);
+                    String commentIssueKey = parameters.get("issueKey").get(0);
+
+                    // Perform the Jira issue status update
+                    response = jiraIssueService.addCommentToIssue(jiraInstance,commentIssueKey,commentText);
+
+                    // Update resultCode and response message based on the outcome
+                    if (response) {
+                        resultCode = HttpServletResponse.SC_OK;
+                        resp.put("status", "success");
+                        resp.put("message", "Comment added successfully for request: "+commentIssueKey);
+                    } else {
+                        resultCode = HttpServletResponse.SC_BAD_REQUEST;
+                        resp.put("status", "failure");
+                        resp.put("message", "Failed to update issue status.");
+                    }
+                    break;
                 default:
                     // Handle any unrecognized actions
                     resultCode = HttpServletResponse.SC_BAD_REQUEST;

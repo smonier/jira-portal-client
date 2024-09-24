@@ -74,4 +74,15 @@
             java.util.List getIssueTypesForProject(java.lang.String, java.lang.String)
         </function-signature>
     </function>
+
+    <function>
+        <description>
+            Retrieves a list of activities (comments and changelog) for a given Jira issue.
+        </description>
+        <name>getIssueActivities</name>
+        <function-class>org.jahia.se.modules.jiraportalclient.taglibs.JiraIssueList</function-class>
+        <function-signature>
+            java.util.List getIssueActivities(java.lang.String, java.lang.String)
+        </function-signature>
+    </function>
 </taglib>
