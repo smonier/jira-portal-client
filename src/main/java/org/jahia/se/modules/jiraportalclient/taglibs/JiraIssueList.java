@@ -110,51 +110,7 @@ public class JiraIssueList {
         return JIRAISSUE_ARRAY_LIST;
     }
 
-    // Method to create a new Jira issue
-    public static String createIssue(String jiraInstance, String projectKey, String summary, String description, String issueType) throws IOException {
-        String jiraUrl = "https://" + jiraInstance + ".atlassian.net/rest/api/2/issue";
-        String encoding = Base64.getEncoder().encodeToString((jiraLogin + ":" + jiraToken).getBytes("UTF-8"));
 
-        JSONObject issueData = new JSONObject();
-        try {
-            issueData.put("fields", new JSONObject()
-                    .put("project", new JSONObject().put("key", projectKey))
-                    .put("summary", summary)
-                    .put("description", description)
-                    .put("issuetype", new JSONObject().put("name", issueType))
-            );
-        } catch (JSONException e) {
-            logger.error("Error creating JSON for new issue", e);
-            return null;
-        }
-
-        URL url = new URL(jiraUrl);
-        HttpURLConnection http = (HttpURLConnection) url.openConnection();
-        http.setRequestMethod("POST");
-        http.setRequestProperty("Content-Type", "application/json");
-        http.setRequestProperty("Authorization", "Basic " + encoding);
-        http.setDoOutput(true);
-
-        try (OutputStream os = http.getOutputStream()) {
-            byte[] input = issueData.toString().getBytes("utf-8");
-            os.write(input, 0, input.length);
-        }
-
-        int responseCode = http.getResponseCode();
-        if (responseCode == HttpURLConnection.HTTP_CREATED) {
-            BufferedReader in = new BufferedReader(new InputStreamReader(http.getInputStream()));
-            String responseLine;
-            StringBuilder response = new StringBuilder();
-            while ((responseLine = in.readLine()) != null) {
-                response.append(responseLine);
-            }
-            in.close();
-            return response.toString();
-        } else {
-            logger.error("Failed to create issue: HTTP error code : " + responseCode);
-            return null;
-        }
-    }
     public static List<JiraIssue> getJiraTickets(String jiraInstance, String jiraProject, RenderContext renderContext) throws IOException, JSONException, RepositoryException, InterruptedException, ExecutionException {
 
         //      RenderContext renderContext = (RenderContext) pageContext.getAttribute("renderContext", PageContext.REQUEST_SCOPE);
@@ -493,6 +449,133 @@ public class JiraIssueList {
         return activities;
     }
 
+    /**
+     * Retrieves all issues from a Jira project filtered by a custom field.
+     *
+     * @param jiraInstance the Jira instance (e.g., "yourInstance" in "yourInstance.atlassian.net")
+     * @param projectKey   the key of the Jira project (e.g., "PROJECT-123")
+     * @param renderContext the context of the current rendering operation
+     * @return a list of JiraIssue objects matching the filter criteria
+     * @throws IOException          if there is an issue with the network connection or data processing
+     * @throws JSONException        if there is an error parsing the JSON response
+     * @throws RepositoryException  if there is an issue accessing the repository
+     * @throws ExecutionException   if there is an issue with concurrent execution
+     * @throws InterruptedException if the operation is interrupted
+     */
+    public static List<JiraIssue> getIssuesByCustomField(String jiraInstance, String projectKey, RenderContext renderContext)
+            throws IOException, JSONException, RepositoryException, ExecutionException, InterruptedException {
+        List<JiraIssue> JIRAISSUE_ARRAY_LIST = new ArrayList<>();
+
+        PortalFunctions jiraCustomProject = new PortalFunctions();
+
+        String jiraCustomField = jiraCustomProject.getPropertyValue("jiraCustomField", renderContext, contextServerService);
+        String jiraCustomFieldValue = jiraCustomProject.getPropertyValue("jiraCustomFieldValue", renderContext, contextServerService);
+        String jiraProjectNameValue = jiraCustomProject.getPropertyValue("jiraProjectName", renderContext, contextServerService);
+
+        if (jiraProjectNameValue != null) {
+            projectKey = jiraProjectNameValue;
+        }
+
+        // Determine the correct JQL operator based on the field type or other information
+        String jqlOperator = getJqlOperatorForField(jiraCustomField);
+
+        // Jira API URL for search using JQL (Jira Query Language)
+        String jql = String.format("project = %s AND %s %s \"%s\"", projectKey, jiraCustomField, jqlOperator, jiraCustomFieldValue);
+        String jiraUrl = String.format("https://%s.atlassian.net/rest/api/2/search?jql=%s", jiraInstance, urlEncode(jql));
+        String encoding = Base64.getEncoder().encodeToString((jiraLogin + ":" + jiraToken).getBytes("UTF-8"));
+
+        logger.info("CUSTOM FIELD QUERY URL: " + jiraUrl);
+        HttpURLConnection connection = null;
+        BufferedReader in = null;
+
+        try {
+            URL url = new URL(jiraUrl);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Authorization", "Basic " + encoding);
+            connection.setRequestProperty("Content-Type", "application/json");
+
+            long startTime = System.currentTimeMillis();
+
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK || connection.getResponseCode() == HttpURLConnection.HTTP_CREATED) {
+                InputStream responseStream = connection.getInputStream();
+                String jsonResponse = convertStreamToString(responseStream);
+
+                JSONObject jiraJsonObject = new JSONObject(jsonResponse);
+                JSONArray jiraIssueArray = jiraJsonObject.optJSONArray("issues");
+
+                logger.info("JIRA Response: " + jiraIssueArray.toString());
+
+                if (jiraIssueArray != null) {
+                    try {
+                        ObjectMapper mapper = new ObjectMapper();
+                        JIRAISSUE_ARRAY_LIST = mapper.readValue(jiraIssueArray.toString(), new TypeReference<List<JiraIssue>>() {});
+                    } catch (Exception e) {
+                        logger.error("Error parsing JSON to JiraIssue list: ", e);
+                    }
+                }
+            } else {
+                // Capture error response body for further inspection
+                in = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
+                StringBuilder errorResponse = new StringBuilder();
+                String inputLine;
+
+                while ((inputLine = in.readLine()) != null) {
+                    errorResponse.append(inputLine);
+                }
+
+                logger.error("Failed to retrieve issues: HTTP error code " + connection.getResponseCode() + " " + connection.getResponseMessage());
+                logger.error("Error response: " + errorResponse.toString());
+
+                throw new IOException("Failed to retrieve issues: " + errorResponse.toString());
+            }
+
+            logger.info("Request {} executed in {} ms", url, (System.currentTimeMillis() - startTime));
+        } catch (Exception e) {
+            logger.error("Error connecting to: " + jiraUrl, e);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    logger.error("Error closing input stream: ", e);
+                }
+            }
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+
+        logger.info("List returned from: " + jiraUrl);
+        return JIRAISSUE_ARRAY_LIST;
+    }
+
+    /**
+     * URL-encodes the given string for use in a query parameter.
+     *
+     * @param value the string to encode
+     * @return the URL-encoded string
+     * @throws IOException if encoding fails
+     */
+    private static String urlEncode(String value) throws IOException {
+        return java.net.URLEncoder.encode(value, "UTF-8");
+    }
+
+    /**
+     * Determines the appropriate JQL operator for a given custom field.
+     *
+     * @param field the custom field to check
+     * @return the correct JQL operator (e.g., "=", "~", "in")
+     */
+    private static String getJqlOperatorForField(String field) {
+        // This is a simple placeholder logic. You need to implement logic based on your Jira configuration.
+        // For example, if 'EIN' is a text field, you might use '~' instead of '='.
+        if (field.equals("EIN")) {
+            return "~"; // 'contains' operator for text fields
+        }
+        // Add more cases for other fields as needed.
+        return "="; // Default to '=' for standard fields
+    }
     // Helper method to convert InputStream to String
     private static String convertStreamToString(InputStream is) throws IOException {
         StringBuilder sb = new StringBuilder();

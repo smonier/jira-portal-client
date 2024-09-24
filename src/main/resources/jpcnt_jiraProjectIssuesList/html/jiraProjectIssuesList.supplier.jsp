@@ -32,7 +32,7 @@
 <c:set var="buttonLabel" value="${currentNode.properties['buttonLabel'].string}"/>
 <c:set var="context" value="${renderContext}"/>
 <%--<c:set var="statusList" value="${['Requested', 'In Review', 'Approved', 'Rejected']}"/>--%>
-<c:set var="jiraIssueList" value="${jira:getJiraTickets(jiraInstance,jiraProject,context)}"/>
+<c:set var="jiraIssueList" value="${jira:getIssuesByCustomField(jiraInstance,jiraProject,context)}"/>
 
 
 <div class="portal-header" id="tableContainer-${currentNode.UUID}">
@@ -55,8 +55,8 @@
                 <th>Type</th>
                 <th>Key</th>
                 <th>Summary</th>
+                <th>EIN</th>
                 <th>Assignee</th>
-                <th>Reporter</th>
                 <th>Priority</th>
                 <th>Status</th>
                 <th>Change Status</th>
@@ -69,7 +69,7 @@
             <c:forEach items="${jiraIssueList}" var="jiraIssue" varStatus="status">
                 <c:set var="statusList" value="${jira:getAvailableTransitions(jiraInstance, jiraIssue.getKey())}"/>
                 <c:set var="activityList" value="${jira:getIssueActivities(jiraInstance, jiraIssue.getKey())}"/>
-
+                <c:set var="activityListFormatted" value=""/>
                 <c:if test="${not empty activityList}">
                     <c:set var="activityListFormatted" value="<strong>Activities: </strong><br/>"/>
 
@@ -83,8 +83,8 @@
                     <td><img height="16" width="16" src="${jiraIssue.getTypeIconUrl()}" alt="${jiraIssue.getType()}" title="${jiraIssue.getType()}"/></td>
                     <td><a href="https://${jiraInstance}.atlassian.net/browse/${jiraIssue.getKey()}">${jiraIssue.getKey()}</a></td>
                     <td>${jiraIssue.getSummary()}</td>
+                    <td>${jiraIssue.getEin()}</td>
                     <td>${jiraIssue.getAssignee()}</td>
-                    <td>${jiraIssue.getReporter()}</td>
                     <td><img height="16" width="16" src="${jiraIssue.getPriorityIconUrl()}" alt="${jiraIssue.getPriority()}" title="${jiraIssue.getPriority()}"/></td>
                     <td>${jiraIssue.getStatus()}</td>
                     <td>
@@ -136,7 +136,9 @@
                         <textarea class="form-control" id="commentText" name="commentText" rows="4" placeholder="Enter your comment here" required></textarea>
                     </div>
                     <c:url var="actionURL" value="${url.base}${currentNode.path}.requestJiraUpdate.do"/>
-                    <button type="button" class="btn btn-primary" onclick="addNewComment('${actionURL}')">Add Comment</button>                </form>
+                    <button type="button" class="btn btn-primary" onclick="addNewComment('${actionURL}')">Add Comment
+                    </button>
+                </form>
             </div>
         </div>
     </div>
@@ -244,7 +246,5 @@
             }
         });
     });
-
-
 </script>
 

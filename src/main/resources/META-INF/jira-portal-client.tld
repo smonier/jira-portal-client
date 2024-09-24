@@ -85,4 +85,15 @@
             java.util.List getIssueActivities(java.lang.String, java.lang.String)
         </function-signature>
     </function>
+
+    <function>
+        <description>
+            Retrieves a list of Jira issue summaries filtered by a custom field in a specified project.
+        </description>
+        <name>getIssuesByCustomField</name>
+        <function-class>org.jahia.se.modules.jiraportalclient.taglibs.JiraIssueList</function-class>
+        <function-signature>
+            java.util.List getIssuesByCustomField(java.lang.String, java.lang.String, org.jahia.services.render.RenderContext)
+        </function-signature>
+    </function>
 </taglib>
