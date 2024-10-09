@@ -32,9 +32,11 @@
 <c:set var="jiraProject" value="${currentNode.properties['projectName'].string}"/>
 <c:set var="activateButton" value="${currentNode.properties['activateButton'].string}"/>
 <c:set var="buttonLabel" value="${currentNode.properties['buttonLabel'].string}"/>
+<c:set var="targetProjectKey" value="${currentNode.properties['targetProjectKey'].string}"/>
+
 <c:set var="context" value="${renderContext}"/>
 <%--<c:set var="statusList" value="${['Requested', 'In Review', 'Approved', 'Rejected']}"/>--%>
-<c:set var="jiraIssueList" value="${jira:getIssuesByCustomField(jiraInstance,jiraProject,context)}"/>
+<c:set var="jiraIssueList" value="${jira:getJiraTickets(jiraInstance,jiraProject,context)}"/>
 
 
 <div class="portal-header" id="tableContainer-${currentNode.UUID}">
@@ -55,15 +57,15 @@
             <tr>
                 <th class="dt-control"></th>
                 <th>Type</th>
-                <th>Key</th>
-                <th>Summary</th>
-                <th>EIN</th>
-                <th>Assignee</th>
-                <th>Priority</th>
-                <th>Status</th>
-                <th>Change Status</th>
-                <th>Created</th>
-                <th>Last Modified</th>
+                <th>Clé</th>
+                <th>Titre</th>
+                <th>Marché</th>
+                <th>Assigné</th>
+                <th>Priorité</th>
+                <th>Statut</th>
+                <th>Changer Statut</th>
+                <th>Créé le</th>
+                <th>Mis à jour le</th>
                 <th>Action</th>
             </tr>
             </thead>
@@ -85,15 +87,15 @@
                     <td><img height="16" width="16" src="${jiraIssue.getTypeIconUrl()}" alt="${jiraIssue.getType()}" title="${jiraIssue.getType()}"/></td>
                     <td><a href="https://${jiraInstance}.atlassian.net/browse/${jiraIssue.getKey()}">${jiraIssue.getKey()}</a></td>
                     <td>${jiraIssue.getSummary()}</td>
-                    <td>${jiraIssue.getEin()}</td>
+                    <td>${jiraIssue.getMarketNum()}</td>
                     <td>${jiraIssue.getAssignee()}</td>
                     <td><img height="16" width="16" src="${jiraIssue.getPriorityIconUrl()}" alt="${jiraIssue.getPriority()}" title="${jiraIssue.getPriority()}"/></td>
                     <td>${jiraIssue.getStatus()}</td>
                     <td>
                         <c:url var="actionURL" value="${url.base}${currentNode.path}.requestJiraUpdate.do"/>
 
-                        <select onchange="updateIssueStatus('${jiraInstance}', '${jiraProject}', '${jiraIssue.getKey()}', this.value,'${actionURL}')">
-                            <option value="">Select Status</option>
+                        <select onchange="updateIssueStatus('${jiraInstance}', '${jiraProject}', '${jiraIssue.getKey()}', this.value,'${actionURL}','${targetProjectKey}')">
+                            <option value="">Selectionner Statut</option>
                             <c:forEach items="${statusList}" var="status">
                                 <option value="${status.getId()}" <c:if test="${status.getValue() eq jiraIssue.getStatus()}">selected</c:if>>
                                         ${status.getValue()}
@@ -134,11 +136,11 @@
                 <!-- Form inside the modal -->
                 <form id="commentForm">
                     <div class="form-group">
-                        <label for="commentText">Comment:</label>
-                        <textarea class="form-control" id="commentText" name="commentText" rows="4" placeholder="Enter your comment here" required></textarea>
+                        <label for="commentText">Commentaire :</label>
+                        <textarea class="form-control" id="commentText" name="commentText" rows="4" placeholder="Entrer votre commentaire ici" required></textarea>
                     </div>
                     <c:url var="actionURL" value="${url.base}${currentNode.path}.requestJiraUpdate.do"/>
-                    <button type="button" class="btn btn-primary" onclick="addNewComment('${actionURL}')">Add Comment
+                    <button type="button" class="btn btn-primary" onclick="addNewComment('${actionURL}')">Ajouter
                     </button>
                 </form>
             </div>
@@ -150,32 +152,38 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Create a ${buttonLabel}</h5>
+                <h5 class="modal-title" id="exampleModalLabel">${buttonLabel}</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="container mt-5">
-                    <h2>Create New Change Request</h2>
+                    <h2>${buttonLabel}</h2>
                     <form id="jiraIssueForm">
                         <!-- Summary Field -->
                         <div class="form-group">
-                            <label for="summary">Summary</label>
-                            <input type="text" class="form-control" id="summary" name="summary" placeholder="Enter issue summary" required>
+                            <label for="summary">Titre</label>
+                            <input type="text" class="form-control" id="summary" name="summary" placeholder="Titre de votre demande" required>
                         </div>
 
                         <!-- Description Field -->
                         <div class="form-group">
                             <label for="description">Description</label>
-                            <textarea class="form-control" id="description" name="description" rows="4" placeholder="Enter issue description" required></textarea>
+                            <textarea class="form-control" id="description" name="description" rows="4" placeholder="Description de la demande" required></textarea>
+                        </div>
+
+                        <!-- Marché Field -->
+                        <div class="form-group">
+                            <label for="marketNum">Marché</label>
+                            <input type="text" class="form-control" id="marketNum" name="marketNum" placeholder="Numéro du marché" required>
                         </div>
 
                         <!-- Issue Type Dropdown -->
                         <div class="form-group">
-                            <label for="issueType">Issue Type</label>
+                            <label for="issueType">Type</label>
                             <select class="form-control" id="issueType" name="issueType" required>
-                                <option value="">Select Issue Type</option>
+                                <option value="">Selectionner Type</option>
                                 <!-- JSP Code to Populate Issue Types -->
                                 <c:forEach items="${jira:getIssueTypesForProject(jiraInstance, jiraProject)}" var="issueType">
                                     <option value="${issueType.getLabel()}">${issueType.getLabel()}</option>
@@ -185,25 +193,25 @@
 
                         <!-- Priority Dropdown -->
                         <div class="form-group">
-                            <label for="priority">Priority</label>
+                            <label for="priority">Priorité</label>
                             <select class="form-control" id="priority" name="priority" required>
-                                <option value="">Select Priority</option>
-                                <option value="Highest">Highest</option>
-                                <option value="High">High</option>
+                                <option value="">Selectionner Priorité</option>
+                                <option value="Highest">Très Haute</option>
+                                <option value="High">Haute</option>
                                 <option value="Medium">Medium</option>
-                                <option value="Low">Low</option>
-                                <option value="Lowest">Lowest</option>
+                                <option value="Low">Basse</option>
+                                <option value="Lowest">Très Basse</option>
                             </select>
                         </div>
 
                         <!-- Submit Button -->
                         <c:url var="actionURL" value="${url.base}${currentNode.path}.requestJiraUpdate.do"/>
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="submitNewIssue('${jiraInstance}','${jiraProject}','${actionURL}')">Create Issue</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="submitNewIssue('${jiraInstance}','${jiraProject}','${actionURL}')">Créer demande</button>
                     </form>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
             </div>
         </div>
     </div>

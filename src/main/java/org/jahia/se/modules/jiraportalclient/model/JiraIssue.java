@@ -20,6 +20,8 @@ public class JiraIssue {
     private String status;
     private String dateCreated;
     private String dateModified;
+    private String marketNum;
+
 
 
 //  public JiraIssue(String type, String key, String summary, String assignee, String reporter, String priority, String status, String dateCreated, String dateModified, String priorityIconUrl, String typeIconUrl) {
@@ -37,6 +39,8 @@ public class JiraIssue {
         this.status = status;
         this.dateCreated = dateCreated;
         this.dateModified = dateModified;
+        this.marketNum = marketNum;
+
     }
 
 
@@ -105,6 +109,8 @@ public class JiraIssue {
         return typeIconUrl;
     }
 
+    public String getMarketNum() {return marketNum; }
+
     public void setType(String type) {
         this.type = type;
     }
@@ -150,4 +156,6 @@ public class JiraIssue {
     public void setTypeIconUrl(String typeIconUrl) {
         this.typeIconUrl = typeIconUrl;
     }
+
+    public void setMarketNum(String marketNum) { this.marketNum = marketNum; }
 }

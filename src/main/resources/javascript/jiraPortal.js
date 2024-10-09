@@ -20,11 +20,11 @@ async function addNewComment(actionUrl) {
 
         if (response.ok) {
             const result = await response.text();
-            alert("Comment added successfully for Request : " + commentIssueKey);
+           // alert("Comment added successfully for Request : " + commentIssueKey);
             $('#commentModal').modal('hide');
             location.reload(true);
         } else {
-            alert("Error updating status: " + response.status + " " + response.message);
+            alert("Error adding comment: " + response.status + " " + response.message);
         }
     } catch (error) {
         alert("Request failed: " + error.message);
@@ -44,7 +44,7 @@ function openCommentModal(issueKey, jiraInstance, jiraProject) {
     document.getElementById('commentText').value = '';
 }
 
-async function updateIssueStatus(jiraInstance, jiraProject, jiraIssueKey, jiraNewStatus, actionURL) {
+async function updateIssueStatus(jiraInstance, jiraProject, jiraIssueKey, jiraNewStatus, actionURL, targetProjectKey) {
     const selectedStatus = jiraNewStatus;
 
     // Check if a valid status is selected
@@ -62,6 +62,7 @@ async function updateIssueStatus(jiraInstance, jiraProject, jiraIssueKey, jiraNe
     formData.append('jiraAction', "updateStatus");
     formData.append('issueKey', issueKey);
     formData.append('newStatus', selectedStatus);
+    formData.append('targetProjectKey', targetProjectKey);
 
     try {
         const response = await fetch(actionURL, {
@@ -71,7 +72,7 @@ async function updateIssueStatus(jiraInstance, jiraProject, jiraIssueKey, jiraNe
 
         if (response.ok) {
             const result = await response.text();
-            alert("Status updated successfully for Request : " + issueKey);
+        //    alert("Status updated successfully for Request : " + issueKey);
             location.reload(true);
         } else {
             alert("Error updating status: " + response.status + " " + response.statusText);
@@ -83,14 +84,14 @@ async function updateIssueStatus(jiraInstance, jiraProject, jiraIssueKey, jiraNe
 
 async function submitNewIssue(jiraInstance, jiraProject,actionURL) {
     // Get form data
-
     const summary = document.getElementById('summary').value;
     const description = document.getElementById('description').value;
     const issueType = document.getElementById('issueType').value;
     const priority = document.getElementById('priority').value;
+    const marketNum = document.getElementById('marketNum').value;
 
     // Validation check
-    if (!summary || !description || !issueType || !priority) {
+    if (!summary || !description || !issueType || !priority || !marketNum) {
         alert("All fields are required!");
         return;
     }
@@ -101,6 +102,7 @@ async function submitNewIssue(jiraInstance, jiraProject,actionURL) {
     formData.append('description', description);
     formData.append('issueType', issueType);
     formData.append('priority', priority);
+    formData.append('marketNum', marketNum);
     formData.append('jiraInstance', jiraInstance);
     formData.append('jiraProject', jiraProject);
     formData.append('jiraAction', "createIssue");
@@ -116,7 +118,7 @@ async function submitNewIssue(jiraInstance, jiraProject,actionURL) {
         // Check response status
         if (response.ok) {
             const result = await response.text();
-            alert("Issue created successfully " + result);
+        //    alert("Issue created successfully " + result);
             location.reload(true);
 
         } else {

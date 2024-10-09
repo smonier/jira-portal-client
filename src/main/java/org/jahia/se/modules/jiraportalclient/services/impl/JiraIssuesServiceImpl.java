@@ -93,6 +93,62 @@ public class JiraIssuesServiceImpl implements JiraIssueService, ManagedService {
         }
     }
 
+    @Override
+    public boolean createIssueWithCustomField(String jiraInstance, String projectKey, String summary, String description, String issueType, String priority, String customFieldValue) throws IOException {
+        String jiraUrl = "https://" + jiraInstance + ".atlassian.net/rest/api/2/issue";
+        String encoding = Base64.getEncoder().encodeToString((jiraLogin + ":" + jiraToken).getBytes("UTF-8"));
+
+        // Create the JSON payload for the issue creation
+        JSONObject issueData = new JSONObject();
+        try {
+            issueData.put("fields", new JSONObject()
+                    .put("project", new JSONObject().put("key", projectKey))
+                    .put("summary", summary)
+                    .put("description", description)
+                    .put("issuetype", new JSONObject().put("name", issueType))
+                    .put("priority", new JSONObject().put("name", priority))  // Adding priority field
+                    .put("customfield_10080", customFieldValue)  // Adding custom field
+            );
+        } catch (JSONException e) {
+            LOGGER.error("Error creating JSON for new issue", e);
+            return false;
+        }
+
+        // Send the HTTP POST request to create the issue
+        URL url = new URL(jiraUrl);
+        HttpURLConnection http = (HttpURLConnection) url.openConnection();
+        http.setRequestMethod("POST");
+        http.setRequestProperty("Content-Type", "application/json");
+        http.setRequestProperty("Authorization", "Basic " + encoding);
+        http.setDoOutput(true);
+
+        try (OutputStream os = http.getOutputStream()) {
+            byte[] input = issueData.toString().getBytes("utf-8");
+            os.write(input, 0, input.length);
+        }
+
+        int responseCode = http.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_CREATED) {  // HTTP 201 Created
+            BufferedReader in = new BufferedReader(new InputStreamReader(http.getInputStream()));
+            String responseLine;
+            StringBuilder response = new StringBuilder();
+            while ((responseLine = in.readLine()) != null) {
+                response.append(responseLine);
+            }
+            in.close();
+            return true;
+        } else {
+            BufferedReader errorReader = new BufferedReader(new InputStreamReader(http.getErrorStream()));
+            StringBuilder errorResponse = new StringBuilder();
+            String errorLine;
+            while ((errorLine = errorReader.readLine()) != null) {
+                errorResponse.append(errorLine);
+            }
+            errorReader.close();
+            LOGGER.error("Failed to create issue: HTTP error code : " + responseCode + ", Error: " + errorResponse.toString());
+            return false;
+        }
+    }
     // Method to update an existing Jira issue's status
     @Override
     public boolean updateIssueStatus(String jiraInstance, String issueKey, String transitionId) throws IOException, JSONException {
@@ -211,6 +267,105 @@ public class JiraIssuesServiceImpl implements JiraIssueService, ManagedService {
             System.err.println("Error adding comment to issue: " + e.getMessage());
         }
         return false;
+    }
+
+    /**
+     * Moves an issue from one project to another by creating a new issue in the target project,
+     * copying the necessary details, and closing the original issue.
+     *
+     * @param jiraInstance     The Jira instance to use
+     * @param oldIssueKey      The issue key of the original issue
+     * @param targetProjectKey The key of the target project
+     * @return true if the issue was successfully moved, false otherwise
+     * @throws IOException if there's an error with the network request
+     */
+    @Override
+    public boolean moveIssue(String jiraInstance, String oldIssueKey, String targetProjectKey) throws IOException, JSONException {
+        // Step 1: Get the issue details from the original project
+        JSONObject issueDetails = getIssueDetails(jiraInstance, oldIssueKey);
+        if (issueDetails == null) {
+            LOGGER.error("Unable to fetch issue details for issue key: " + oldIssueKey);
+            return false;
+        }
+
+        // Step 2: Extract the fields needed to create a new issue
+        String summary = issueDetails.getJSONObject("fields").getString("summary");
+        String description = issueDetails.getJSONObject("fields").getString("description");
+        String issueType = issueDetails.getJSONObject("fields").getJSONObject("issuetype").getString("name");
+        String priority = issueDetails.getJSONObject("fields").getJSONObject("priority").getString("name");
+        String marketNum = issueDetails.getJSONObject("fields").getString("customfield_10080");
+
+        LOGGER.info("Moving issue {} from issue {} - targetProjectKey : {} - marketNum : {}", jiraInstance, oldIssueKey, targetProjectKey, marketNum);
+        // Step 3: Create a new issue in the target project
+        boolean newIssueCreated = createIssueWithCustomField(jiraInstance, targetProjectKey, summary, description, issueType, priority, marketNum);
+        if (!newIssueCreated) {
+            LOGGER.error("Failed to create issue in target project: " + targetProjectKey);
+            return false;
+        }
+
+        // Step 4: Close or link the original issue (optional)
+        closeIssue(jiraInstance, oldIssueKey);
+
+        LOGGER.info("Issue " + oldIssueKey + " successfully moved to project " + targetProjectKey);
+        return true;
+    }
+
+    /**
+     * Fetches the details of an issue by its issue key.
+     *
+     * @param jiraInstance The Jira instance to use
+     * @param issueKey The issue key to fetch
+     * @return The issue details as a JSONObject, or null if the request failed
+     * @throws IOException if there is an error with the network request
+     */
+    public JSONObject getIssueDetails(String jiraInstance, String issueKey) throws IOException, JSONException {
+        String jiraUrl = "https://" + jiraInstance + ".atlassian.net/rest/api/2/issue/" + issueKey;
+        HttpURLConnection connection = (HttpURLConnection) new URL(jiraUrl).openConnection();
+        connection.setRequestMethod("GET");
+        connection.setRequestProperty("Authorization", "Basic " + Base64.getEncoder().encodeToString((jiraLogin + ":" + jiraToken).getBytes()));
+
+        int responseCode = connection.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            InputStream inputStream = connection.getInputStream();
+            return new JSONObject(convertStreamToString(inputStream));
+        } else {
+            LOGGER.error("Failed to fetch issue details: " + responseCode);
+            return null;
+        }
+    }
+
+    /**
+     * Closes an issue by transitioning it to the "Closed" status.
+     *
+     * @param jiraInstance The Jira instance to use
+     * @param issueKey The issue key to close
+     * @throws IOException if there is an error with the network request
+     */
+    public void closeIssue(String jiraInstance, String issueKey) throws IOException, JSONException {
+        // You may need to adjust the transition ID based on your Jira workflow setup
+        String transitionId = "31"; // The ID for the "Closed" transition
+        String jiraUrl = "https://" + jiraInstance + ".atlassian.net/rest/api/2/issue/" + issueKey + "/transitions";
+
+        JSONObject transitionData = new JSONObject();
+        transitionData.put("transition", new JSONObject().put("id", transitionId));
+
+        HttpURLConnection connection = (HttpURLConnection) new URL(jiraUrl).openConnection();
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Authorization", "Basic " + Base64.getEncoder().encodeToString((jiraLogin + ":" + jiraToken).getBytes()));
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setDoOutput(true);
+
+        try (OutputStream os = connection.getOutputStream()) {
+            byte[] input = transitionData.toString().getBytes("utf-8");
+            os.write(input, 0, input.length);
+        }
+
+        int responseCode = connection.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_NO_CONTENT) {
+            LOGGER.info("Issue " + issueKey + " successfully closed.");
+        } else {
+            LOGGER.error("Failed to close issue: " + responseCode);
+        }
     }
 
     // Helper method to convert InputStream to String

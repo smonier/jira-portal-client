@@ -11,3 +11,4 @@
  - projectName (String)
  - activateButton (boolean)
  - buttonLabel (String)
+ - targetProjectKey (String)
