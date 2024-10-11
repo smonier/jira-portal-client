@@ -3,6 +3,7 @@ package org.jahia.se.modules.jiraportalclient.model;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import static org.jahia.se.modules.jiraportalclient.functions.JiraUtils.jiraToHtml;
 
 
 @JsonDeserialize(using = JiraIssueDeserializer.class)
@@ -58,7 +59,7 @@ public class JiraIssue {
     }
 
     public String getDescription() {
-        return description;
+        return jiraToHtml(description);
     }
 
     public String getAssignee() {
@@ -106,7 +107,11 @@ public class JiraIssue {
     }
 
     public String getTypeIconUrl() {
-        return typeIconUrl;
+        if (typeIconUrl.contains("10551")) {
+            return "/modules/jira-portal-client/images/order.png";
+        } else {
+            return typeIconUrl;
+        }
     }
 
     public String getMarketNum() {return marketNum; }

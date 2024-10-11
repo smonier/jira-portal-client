@@ -1,11 +1,11 @@
 package org.jahia.se.modules.jiraportalclient.actions;
 
+
 import org.jahia.bin.Action;
 import org.jahia.bin.ActionResult;
 import org.jahia.se.modules.jiraportalclient.services.JiraIssueService;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
-import org.jahia.services.content.nodetypes.NodeTypeRegistry;
 import org.jahia.services.render.RenderContext;
 import org.jahia.services.render.Resource;
 import org.jahia.services.render.URLResolver;
@@ -23,9 +23,11 @@ import javax.jcr.RepositoryException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
+
+import static org.jahia.se.modules.jiraportalclient.functions.JiraUtils.htmlToJira;
+
 
 @Component(service = Action.class, immediate = true)
 public class JiraIssueAction extends Action {
@@ -195,40 +197,12 @@ public class JiraIssueAction extends Action {
             return jiraIssueService.createIssueWithCustomField(jiraInstance, jiraProject, summary, description, issueType, priority, marketNum);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    // Handle Jira issue creation
-    private boolean handleCreateOrder(Map<String, List<String>> parameters, JCRSessionWrapper session, String jiraInstance, String jiraProject) throws IOException, JSONException, RepositoryException {
-
-        JahiaUser user =  session.getUser();
-        String currentUserName = user.getUsername();
-        String description = null;
-        JSONArray jsonArray = new JSONArray(retrieveParameter(parameters, "products"));
-        for (int i = 0; i < jsonArray.length(); i++) {
-            JSONObject jsonObject = jsonArray.getJSONObject(i);
-            String uuid = jsonObject.getString("uuid");
-            description += getProductDetails(session,uuid);
-            description += "Quantité : "+jsonObject.getString("qty")+"<br/><br/>";
-        }
-        String summary = "Nouvelle commande pour " + currentUserName;
-        String issueType = "Order";
-        String priority = "Medium";
-        String marketNum = "9999-AAA-9999";
-
-        if (summary == null || description == null || issueType == null || priority == null || marketNum == null) {
-            LOGGER.error("Missing required parameters for issue creation.");
-            return false;
-        }
-
-        try {
-            return jiraIssueService.createIssueWithCustomField(jiraInstance, jiraProject, summary, description, issueType, priority, marketNum);
-        } catch (IOException e) {
+        } catch (JSONException e) {
             throw new RuntimeException(e);
         }
     }
-        // Handle adding a comment to a Jira issue
-    private boolean handleAddComment(Map<String, List<String>> parameters, String jiraInstance) {
+    // Handle adding a comment to a Jira issue
+    private boolean handleAddComment(Map<String, List<String>> parameters, String jiraInstance) throws JSONException, IOException {
         String commentText = retrieveParameter(parameters, "commentText");
         String commentIssueKey = retrieveParameter(parameters, "issueKey");
 
@@ -240,13 +214,89 @@ public class JiraIssueAction extends Action {
         return jiraIssueService.addCommentToIssue(jiraInstance, commentIssueKey, commentText);
     }
 
-    private String getProductDetails(JCRSessionWrapper session, String uuid) throws RepositoryException {
-        String description = null;
-        JCRNodeWrapper node = session.getNodeByIdentifier(uuid);
-        description +=  "<br/><strong>" + node.getPropertyAsString("jcr:title") + "</strong><br/>";
-        description +=  node.getPropertyAsString("teaser") + "<br/>";
-        description +=  node.getPropertyAsString("price") + "EUR<br/>";
+    private boolean handleCreateOrder(Map<String, List<String>> parameters, JCRSessionWrapper session, String jiraInstance, String jiraProject) throws IOException, JSONException, RepositoryException {
 
-        return description;
+        JahiaUser user = session.getUser();
+        String currentUserName = user.getProperty("j:email");
+
+        // Start HTML table for product description
+        StringBuilder description = new StringBuilder("<table border='1' cellpadding='5' cellspacing='0'>");
+        description.append("<thead><tr><th>Produit</th><th>Quantité</th><th>Prix Unitaire</th><th>Sous-total</th></tr></thead>");
+        description.append("<tbody>");
+
+        JSONArray jsonArray = new JSONArray(retrieveParameter(parameters, "products"));
+        double totalPrice = 0.0; // Initialize the total price variable
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            String uuid = jsonObject.getString("uuid");
+            int quantity = jsonObject.getInt("qty");
+
+            // Get the product price and details
+            double productPrice = getProductPrice(session, uuid); // Use the getProductPrice method
+            double subtotal = productPrice * quantity;
+            totalPrice += subtotal;
+
+            // Get product details and append to the table row
+            String productDetails = getProductDetails(session, uuid);
+
+            description.append("<tr>")
+                    .append("<td>").append(productDetails).append("</td>") // Product details in one cell
+                    .append("<td>").append(quantity).append("</td>")       // Quantity in one cell
+                    .append("<td>").append(productPrice).append(" EUR").append("</td>") // Unit price
+                    .append("<td>").append(subtotal).append(" EUR").append("</td>") // Subtotal price
+                    .append("</tr>");
+        }
+
+        // Add the total price as the last row
+        description.append("<tr>")
+                .append("<td colspan='3'><strong>Total</strong></td>")
+                .append("<td><strong>").append(totalPrice).append(" EUR</strong></td>")
+                .append("</tr>");
+
+        // Close the HTML table
+        description.append("</tbody></table>");
+
+        // Jira issue details
+        String summary = "Nouveau Devis pour " + currentUserName;
+        String issueType = "Order";
+        String priority = "Medium";
+        String marketNum = "";
+
+        if (summary == null || description.toString() == null || issueType == null || priority == null) {
+            LOGGER.error("Missing required parameters for issue creation.");
+            return false;
+        }
+
+        try {
+            // Pass the generated HTML table in the description to the Jira issue creation service
+            return jiraIssueService.createIssueWithCustomField(jiraInstance, jiraProject, summary, htmlToJira(description.toString()), issueType, priority, marketNum);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
+
+    private String getProductDetails(JCRSessionWrapper session, String uuid) throws RepositoryException {
+        StringBuilder productDetails = new StringBuilder();
+        JCRNodeWrapper node = session.getNodeByIdentifier(uuid);
+        productDetails.append("<strong>").append(node.getPropertyAsString("jcr:title")).append("</strong>"); // Product title
+        //productDetails.append("<br/>").append(node.getPropertyAsString("teaser")); // Product teaser/description
+        return productDetails.toString(); // Return as a string
+    }
+
+    private Double getProductPrice(JCRSessionWrapper session, String uuid) throws RepositoryException {
+        // Retrieve the node by its UUID
+        JCRNodeWrapper node = session.getNodeByIdentifier(uuid);
+
+        // Ensure that the node has the 'price' property
+        if (node.hasProperty("price")) {
+            // Retrieve the 'price' property and convert it to a double
+            return node.getProperty("price").getDouble();
+        } else {
+            // Handle the case where the price property is not available
+            throw new RepositoryException("The node with UUID " + uuid + " does not have a 'price' property.");
+        }
+    }
+
+
 }

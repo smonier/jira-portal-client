@@ -115,12 +115,12 @@ public class JiraIssueList {
 
         //      RenderContext renderContext = (RenderContext) pageContext.getAttribute("renderContext", PageContext.REQUEST_SCOPE);
 
-        PortalFunctions jiraProjectName = new PortalFunctions();
+/*        PortalFunctions jiraProjectName = new PortalFunctions();
 
         String jiraProjectNameValue = jiraProjectName.getPropertyValue("jiraProjectName", renderContext, contextServerService);
         if (jiraProjectNameValue != null) {
             jiraProject = jiraProjectNameValue;
-        }
+        }*/
         logger.info("Getting Jira Issues from " + jiraInstance + " for the project " + jiraProject);
 
         String jiraUrl = "https://" + jiraInstance + ".atlassian.net/rest/api/2/search?jql=project=" + jiraProject;

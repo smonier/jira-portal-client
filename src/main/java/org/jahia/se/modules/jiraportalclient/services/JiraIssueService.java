@@ -41,7 +41,7 @@ public interface JiraIssueService {
      * @param commentText    the comment text to add
      * @return               true if the comment was added successfully, false otherwise
      */
-    boolean addCommentToIssue(String jiraInstance, String issueKey, String commentText);
+    boolean addCommentToIssue(String jiraInstance, String issueKey, String commentText) throws JSONException, IOException;
 
     /**
      * Creates a Jira issue with a custom field.
@@ -55,7 +55,7 @@ public interface JiraIssueService {
      * @param customFieldValue  the value for the custom field
      * @return                  true if the issue was created successfully, false otherwise
      */
-    boolean createIssueWithCustomField(String jiraInstance, String projectKey, String summary, String description, String issueType, String priority, String customFieldValue) throws IOException;
+    boolean createIssueWithCustomField(String jiraInstance, String projectKey, String summary, String description, String issueType, String priority, String customFieldValue) throws IOException, JSONException;
 
     /**
      * Moves an issue from one project to another by creating a new issue in the target project,
