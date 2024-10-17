@@ -69,4 +69,5 @@ public interface JiraIssueService {
      */
     boolean moveIssue(String jiraInstance, String oldIssueKey, String targetProjectKey) throws IOException, JSONException;
 
+    String getIssueDescription(String jiraInstance,String issueKey);
     }

@@ -12,3 +12,4 @@
  - activateButton (boolean)
  - buttonLabel (String)
  - targetProjectKey (String)
+ - activatePdfCreation (boolean)

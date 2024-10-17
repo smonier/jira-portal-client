@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import javax.jcr.RepositoryException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -204,14 +205,15 @@ public class JiraIssueAction extends Action {
     // Handle adding a comment to a Jira issue
     private boolean handleAddComment(Map<String, List<String>> parameters, String jiraInstance) throws JSONException, IOException {
         String commentText = retrieveParameter(parameters, "commentText");
+        String loggedInUser = retrieveParameter(parameters, "user");
         String commentIssueKey = retrieveParameter(parameters, "issueKey");
 
         if (commentText == null || commentIssueKey == null) {
             LOGGER.error("Missing required parameters for adding comment.");
             return false;
         }
-
-        return jiraIssueService.addCommentToIssue(jiraInstance, commentIssueKey, commentText);
+        String message = loggedInUser + " : " + commentText;
+        return jiraIssueService.addCommentToIssue(jiraInstance, commentIssueKey, message);
     }
 
     private boolean handleCreateOrder(Map<String, List<String>> parameters, JCRSessionWrapper session, String jiraInstance, String jiraProject) throws IOException, JSONException, RepositoryException {
@@ -250,7 +252,7 @@ public class JiraIssueAction extends Action {
 
         // Add the total price as the last row
         description.append("<tr>")
-                .append("<td colspan='3'><strong>Total</strong></td>")
+                .append("<td><strong>Total</strong></td><td>-</td><td>-</td>")
                 .append("<td><strong>").append(totalPrice).append(" EUR</strong></td>")
                 .append("</tr>");
 
@@ -297,6 +299,7 @@ public class JiraIssueAction extends Action {
             throw new RepositoryException("The node with UUID " + uuid + " does not have a 'price' property.");
         }
     }
+
 
 
 }

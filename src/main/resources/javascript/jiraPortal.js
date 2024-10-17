@@ -1,4 +1,51 @@
-async function addNewComment(actionUrl) {
+function handleActionChange(selectElement, issueKey, jiraInstance, jiraProject,actionUrl) {
+    var selectedValue = selectElement.value;
+
+    // Check the selected option and perform the corresponding action
+    if (selectedValue === 'addComment') {
+        // Open the modal programmatically
+        openCommentModal(issueKey, jiraInstance, jiraProject);
+        $('#commentModal').modal('show');  // This line opens the modal using jQuery/Bootstrap
+    } else if (selectedValue === 'createInvoice') {
+        // Add your logic for creating an invoice here
+        createInvoice(issueKey, jiraInstance, jiraProject,actionUrl);
+    }
+
+    // Reset the select after the action is triggered
+    selectElement.selectedIndex = 0;
+}
+
+// Example function for creating an invoice
+async function createInvoice(issueKey, jiraInstance, jiraProject,actionUrl) {
+    var pdfFileName = issueKey + "-" + generateTimestamp();
+    const formData = new FormData();
+    formData.append('jiraInstance', jiraInstance);
+    formData.append('jiraProject', jiraProject);
+    formData.append('pdfFileName', pdfFileName);
+    formData.append('issueKey', issueKey);
+
+    console.log("Create Invoice action triggered for", pdfFileName);
+    // Implement your logic for invoice creation
+    try {
+        const response = await fetch(actionUrl, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            const result = await response.text();
+            alert("Commande : " + pdfFileName + " créée");
+
+        } else {
+            alert("Error creating PDF: " + response.status + " " + response.message);
+        }
+    } catch (error) {
+        alert("Request failed: " + error.message);
+    }
+}
+
+
+async function addNewComment(actionUrl,user) {
     var form = document.getElementById('commentForm');
     var commentIssueKey = form.getAttribute('data-issue-key');
     var jiraInstance = form.getAttribute('data-jira-instance');
@@ -11,6 +58,8 @@ async function addNewComment(actionUrl) {
     formData.append('jiraAction', "addComment");
     formData.append('issueKey', commentIssueKey);
     formData.append('commentText', commentText);
+    formData.append('user', user);
+
 
     try {
         const response = await fetch(actionUrl, {
@@ -129,4 +178,17 @@ async function submitNewIssue(jiraInstance, jiraProject,actionURL) {
         console.error("Error:", error);
         alert("An error occurred: " + error.message);
     }
+}
+
+function generateTimestamp() {
+    var now = new Date();
+
+    var year = now.getFullYear();
+    var month = ('0' + (now.getMonth() + 1)).slice(-2); // Months are 0-indexed
+    var day = ('0' + now.getDate()).slice(-2);
+    var hours = ('0' + now.getHours()).slice(-2);
+    var minutes = ('0' + now.getMinutes()).slice(-2);
+    var seconds = ('0' + now.getSeconds()).slice(-2);
+
+    return year + month + day + hours + minutes + seconds;
 }

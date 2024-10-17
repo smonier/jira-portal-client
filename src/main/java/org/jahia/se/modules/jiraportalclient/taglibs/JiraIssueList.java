@@ -2,7 +2,7 @@ package org.jahia.se.modules.jiraportalclient.taglibs;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jahia.modules.jexperience.admin.ContextServerService;
+//import org.jahia.modules.jexperience.admin.ContextServerService;
 import org.jahia.se.modules.jiraportalclient.model.IssueType;
 import org.jahia.se.modules.jiraportalclient.model.Status;
 import org.jahia.services.render.RenderContext;
@@ -23,7 +23,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import org.jahia.se.modules.jiraportalclient.model.JiraIssue;
-import org.jahia.se.modules.jiraportalclient.functions.PortalFunctions;
+//import org.jahia.se.modules.jiraportalclient.functions.PortalFunctions;
 
 import javax.jcr.RepositoryException;
 
@@ -34,12 +34,12 @@ public class JiraIssueList {
 
     private static String jiraLogin;
     private static String jiraToken;
-    private static ContextServerService contextServerService;
+    /*private static ContextServerService contextServerService;
 
     @Reference(service = ContextServerService.class)
     public void setContextServerService(ContextServerService contextServerService) {
         this.contextServerService = contextServerService;
-    }
+    }*/
 
     @Activate
     public void activate(Map<String, ?> props) {
@@ -416,7 +416,7 @@ public class JiraIssueList {
                         String author = comment.getJSONObject("author").getString("displayName");
                         String created = comment.getString("created");
 
-                        activities.add("Comment by " + author + " on " + formatDate(created)+" : " + commentBody);
+                        activities.add("Le " + formatDate(created)+" par  " + commentBody);
                     }
                 } else if (type.equals("changelog")) {
                     JSONObject changelogObject = responseObject.getJSONObject("changelog");
@@ -462,11 +462,11 @@ public class JiraIssueList {
      * @throws ExecutionException   if there is an issue with concurrent execution
      * @throws InterruptedException if the operation is interrupted
      */
-    public static List<JiraIssue> getIssuesByCustomField(String jiraInstance, String projectKey, RenderContext renderContext)
+  /*   public static List<JiraIssue> getIssuesByCustomField(String jiraInstance, String projectKey, RenderContext renderContext)
             throws IOException, JSONException, RepositoryException, ExecutionException, InterruptedException {
         List<JiraIssue> JIRAISSUE_ARRAY_LIST = new ArrayList<>();
 
-        PortalFunctions jiraCustomProject = new PortalFunctions();
+       PortalFunctions jiraCustomProject = new PortalFunctions();
 
         String jiraCustomField = jiraCustomProject.getPropertyValue("jiraCustomField", renderContext, contextServerService);
         String jiraCustomFieldValue = jiraCustomProject.getPropertyValue("jiraCustomFieldValue", renderContext, contextServerService);
@@ -549,7 +549,7 @@ public class JiraIssueList {
         logger.info("List returned from: " + jiraUrl);
         return JIRAISSUE_ARRAY_LIST;
     }
-
+*/
     /**
      * URL-encodes the given string for use in a query parameter.
      *

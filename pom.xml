@@ -67,18 +67,19 @@
     <require-capability>osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"</require-capability>
   </properties>
   <dependencies>
+    <!--
     <dependency>
       <groupId>org.jahia.modules</groupId>
       <artifactId>jexperience</artifactId>
-      <version>3.4.0</version>
-      <scope>provided</scope>
+      <version>3.3.1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.unomi</groupId>
       <artifactId>unomi-api</artifactId>
-      <version>2.0.0</version>
+      <version>2.1.0</version>
       <scope>provided</scope>
     </dependency>
+-->
     <dependency>
       <groupId>atg.taglib.json</groupId>
       <artifactId>json-taglib</artifactId>
@@ -122,6 +123,34 @@
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcpkix-jdk15on</artifactId>
       <version>1.70</version>
+    </dependency>
+    <dependency>
+      <groupId>com.itextpdf</groupId>
+      <artifactId>itextpdf</artifactId>
+      <version>5.5.13.4</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/com.itextpdf/itext-core -->
+    <dependency>
+      <groupId>com.itextpdf</groupId>
+      <artifactId>itext-core</artifactId>
+      <version>8.0.5</version>
+      <type>pom</type>
+    </dependency>
+
+    <dependency>
+      <groupId>com.itextpdf</groupId>
+      <artifactId>html2pdf</artifactId>
+      <version>5.0.5</version>
+    </dependency>
+    <dependency>
+      <groupId>com.ning</groupId>
+      <artifactId>async-http-client</artifactId>
+      <version>1.9.40</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>33.2.1-jre</version>
     </dependency>
   </dependencies>
   <repositories>

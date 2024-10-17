@@ -483,4 +483,48 @@ public class JiraIssuesServiceImpl implements JiraIssueService, ManagedService {
             LOGGER.error("No error stream available for the connection.");
         }
     }
+
+    // Method to retrieve Jira issue description
+    public String getIssueDescription(String jiraInstance,String issueKey) {
+        String issueDescription = null;
+        try {
+            // Build the URL to access the Jira issue
+            String apiUrl = "https://" + jiraInstance + ".atlassian.net/rest/api/2/issue/" + issueKey;
+            // Use the sendGetRequest method to get the JSON response from Jira
+            JSONObject jsonResponse = sendGetRequest(apiUrl);
+
+            if (jsonResponse != null) {
+                // Parse the JSON response and retrieve the description
+                issueDescription = parseDescriptionFromResponse(jsonResponse.toString());
+            } else {
+                LOGGER.error("Failed to retrieve issue description for issue key: " + issueKey);
+            }
+
+        } catch (Exception e) {
+            LOGGER.error("Error retrieving issue description for issue key: " + issueKey, e);
+        }
+
+        return issueDescription;
+    }
+    // Helper method to parse the description from the JSON response
+    private String parseDescriptionFromResponse(String jsonResponse) {
+        String description = null;
+        try {
+            // Create a JSON object from the response
+            JSONObject jsonObject = new JSONObject(jsonResponse);
+
+            // Retrieve the description field
+            if (jsonObject.has("fields")) {
+                JSONObject fields = jsonObject.getJSONObject("fields");
+                if (fields.has("description")) {
+                    description = fields.getString("description");
+                }
+            }
+
+        } catch (JSONException e) {
+            LOGGER.error("Error parsing JSON response", e);
+        }
+
+        return description;
+    }
 }

@@ -1,3 +1,4 @@
+/*
 package org.jahia.se.modules.jiraportalclient.functions;
 
 
@@ -112,4 +113,4 @@ public class PortalFunctions {
         }
         return map;
     }
-}
+}*/
