@@ -33,11 +33,18 @@
 <c:set var="activateButton" value="${currentNode.properties['activateButton'].string}"/>
 <c:set var="buttonLabel" value="${currentNode.properties['buttonLabel'].string}"/>
 <c:set var="targetProjectKey" value="${currentNode.properties['targetProjectKey'].string}"/>
-<c:set var="activatePdfCreation" value="${currentNode.properties['activatePdfCreation'].string}"/>
+<c:set var="activatePdfCreation" value="${currentNode.properties['activatePdfCreation'].getBoolean()}"/>
+<c:set var="useUnomiProfileProperty" value="${currentNode.properties['useUnomiProfileProperty'].getBoolean()}"/>
 
 <c:set var="context" value="${renderContext}"/>
-<%--<c:set var="statusList" value="${['Requested', 'In Review', 'Approved', 'Rejected']}"/>--%>
-<c:set var="jiraIssueList" value="${jira:getJiraTickets(jiraInstance,jiraProject,context)}"/>
+<c:choose>
+    <c:when test="${useUnomiProfileProperty}">
+        <c:set var="jiraIssueList" value="${jira:getJiraIssuesFromUnomi(jiraInstance, jiraProject, renderContext)}"/>
+    </c:when>
+    <c:otherwise>
+        <c:set var="jiraIssueList" value="${jira:getJiraIssues(jiraInstance, jiraProject)}"/>
+    </c:otherwise>
+</c:choose>
 
 <jcr:node var="user"
           path="${context.user.localPath}"/>

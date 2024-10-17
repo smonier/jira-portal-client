@@ -30,9 +30,16 @@
 <c:set var="jiraProject" value="${currentNode.properties['projectName'].string}"/>
 <c:set var="activateButton" value="${currentNode.properties['activateButton'].string}"/>
 <c:set var="buttonLabel" value="${currentNode.properties['buttonLabel'].string}"/>
+<c:set var="useUnomiProfileProperty" value="${currentNode.properties['useUnomiProfileProperty'].string}"/>
 <c:set var="context" value="${renderContext}"/>
-<%--<c:set var="statusList" value="${['Requested', 'In Review', 'Approved', 'Rejected']}"/>--%>
-<c:set var="jiraIssueList" value="${jira:getJiraTickets(jiraInstance,jiraProject,context)}"/>
+<c:choose>
+    <c:when test="${useUnomiProfileProperty}">
+        <c:set var="jiraIssueList" value="${jira:getJiraIssuesFromUnomi(jiraInstance,jiraProject, context)}"/>
+    </c:when>
+    <c:otherwise>
+        <c:set var="jiraIssueList" value="${jira:getJiraIssues(jiraInstance,jiraProject)}"/>
+    </c:otherwise>
+</c:choose>
 
 
 <div class="portal-header" id="tableContainer-${currentNode.UUID}">

@@ -13,3 +13,5 @@
  - buttonLabel (String)
  - targetProjectKey (String)
  - activatePdfCreation (boolean)
+ - useUnomiProfileProperty (boolean)
+

@@ -22,11 +22,9 @@
     <!-- getJiraTickets function definition -->
     <function>
         <description>Get Jira Issues based on the instance, project name, and render context</description>
-        <name>getJiraTickets</name>
+        <name>getJiraIssuesFromUnomi</name>
         <function-class>org.jahia.se.modules.jiraportalclient.taglibs.JiraIssueList</function-class>
-        <function-signature>
-            java.util.List getJiraTickets(java.lang.String, java.lang.String, org.jahia.services.render.RenderContext)
-        </function-signature>
+        <function-signature>java.util.List getJiraIssuesFromUnomi(java.lang.String, java.lang.String, org.jahia.services.render.RenderContext)</function-signature>
     </function>
 
     <!-- getStatusList function definition -->
@@ -35,14 +33,6 @@
         <name>getStatusList</name>
         <function-class>org.jahia.se.modules.jiraportalclient.taglibs.JiraIssueList</function-class>
         <function-signature>java.util.List getStatusList(java.lang.String, java.lang.String)</function-signature>
-    </function>
-
-    <!-- createIssue function definition -->
-    <function>
-        <description>Create a new Jira Issue</description>
-        <name>createIssue</name>
-        <function-class>org.jahia.se.modules.jiraportalclient.taglibs.JiraIssueList</function-class>
-        <function-signature>java.lang.String createIssue(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)</function-signature>
     </function>
 
     <!-- updateIssueStatus function definition -->

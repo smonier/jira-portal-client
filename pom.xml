@@ -67,11 +67,12 @@
     <require-capability>osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"</require-capability>
   </properties>
   <dependencies>
-    <!--
+
     <dependency>
       <groupId>org.jahia.modules</groupId>
       <artifactId>jexperience</artifactId>
-      <version>3.3.1</version>
+      <version>3.3.0</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.unomi</groupId>
@@ -79,7 +80,6 @@
       <version>2.1.0</version>
       <scope>provided</scope>
     </dependency>
--->
     <dependency>
       <groupId>atg.taglib.json</groupId>
       <artifactId>json-taglib</artifactId>
@@ -142,16 +142,7 @@
       <artifactId>html2pdf</artifactId>
       <version>5.0.5</version>
     </dependency>
-    <dependency>
-      <groupId>com.ning</groupId>
-      <artifactId>async-http-client</artifactId>
-      <version>1.9.40</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>33.2.1-jre</version>
-    </dependency>
+
   </dependencies>
   <repositories>
     <repository>

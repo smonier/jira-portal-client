@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -178,112 +179,36 @@ public class PdfGenerationAction extends Action {
                         "    <meta charset=\"UTF-8\">\n" +
                         "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
                         "    <title>Facture</title>\n" +
-                        "    <style>\n" +
-                        "        body {\n" +
-                        "            font-family: Arial, sans-serif;\n" +
-                        "            background-color: #f5f5f5;\n" +
-                        "            margin: 0;\n" +
-                        "            padding: 20px;\n" +
-                        "        }\n" +
-                        "        .invoice-container {\n" +
-                        "            max-width: 800px;\n" +
-                        "            margin: 0 auto;\n" +
-                        "            background-color: #fff;\n" +
-                        "            padding: 20px;\n" +
-                        "            border-radius: 8px;\n" +
-                        "            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);\n" +
-                        "        }\n" +
-                        "        .header {\n" +
-                        "            text-align: center;\n" +
-                        "            margin-bottom: 20px;\n" +
-                        "        }\n" +
-                        "        .header img {\n" +
-                        "            max-width: 150px;\n" +
-                        "        }\n" +
-                        "        .header h1 {\n" +
-                        "            margin: 0;\n" +
-                        "            font-size: 24px;\n" +
-                        "        }\n" +
-                        "        .invoice-details {\n" +
-                        "            margin-bottom: 30px;\n" +
-                        "        }\n" +
-                        "        .invoice-details .info {\n" +
-                        "            display: flex;\n" +
-                        "            justify-content: space-between;\n" +
-                        "            margin-bottom: 20px;\n" +
-                        "        }\n" +
-                        "        .invoice-details h2 {\n" +
-                        "            font-size: 20px;\n" +
-                        "        }\n" +
-                        "        .invoice-items {\n" +
-                        "            width: 100%;\n" +
-                        "            border-collapse: collapse;\n" +
-                        "            margin-bottom: 30px;\n" +
-                        "        }\n" +
-                        "        .invoice-items th, .invoice-items td {\n" +
-                        "            padding: 10px;\n" +
-                        "            border: 1px solid #ccc;\n" +
-                        "            text-align: left;\n" +
-                        "        }\n" +
-                        "        .invoice-items th {\n" +
-                        "            background-color: #f0f0f0;\n" +
-                        "        }\n" +
-                        "        .invoice-summary {\n" +
-                        "            text-align: right;\n" +
-                        "            margin-top: 20px;\n" +
-                        "        }\n" +
-                        "        .invoice-summary h3 {\n" +
-                        "            margin: 0;\n" +
-                        "            font-size: 18px;\n" +
-                        "        }\n" +
-                        "        .footer {\n" +
-                        "            text-align: center;\n" +
-                        "            margin-top: 30px;\n" +
-                        "            font-size: 12px;\n" +
-                        "            color: #777;\n" +
-                        "        }\n" +
-                        "    </style>\n" +
                         "</head>\n" +
                         "<body>\n" +
-                        "    <div class=\"invoice-container\">\n" +
-                        "        <!-- Invoice Header -->\n" +
-                        "        <div class=\"header\">\n" +
-                        "            <img src=\"https://www.ugap.fr/_nuxt/img/logo_ugap.02a35b1.svg\" alt=\"Logo de l'entreprise\">\n" +
-                        "            <h1>Facture</h1>\n" +
-                        "        </div>\n" +
-                        "\n" +
-                        "        <!-- Invoice Details -->\n" +
-                        "        <div class=\"invoice-details\">\n" +
-                        "            <div class=\"info\">\n" +
-                        "                <div>\n" +
-                        "                    <h2>De :</h2>\n" +
-                        "                    <p><strong>Nom de l'entreprise</strong></p>\n" +
-                        "                    <p>Adresse de l'entreprise</p>\n" +
-                        "                    <p>Email : contact@entreprise.com</p>\n" +
-                        "                    <p>Téléphone : +33 1 23 45 67 89</p>\n" +
-                        "                </div>\n" +
-                        "                <div>\n" +
-                        "                    <h2>À :</h2>\n" +
-                        "                    <p><strong>Nom du client</strong></p>\n" +
-                        "                    <p>Adresse du client</p>\n" +
-                        "                    <p>Email : client@example.com</p>\n" +
-                        "                    <p>Téléphone : +33 6 78 90 12 34</p>\n" +
-                        "                </div>\n" +
-                        "            </div>\n" +
-                        "            <p><strong>Date de la facture :</strong> " + getCurrentDateWithPattern("d MMMM yyyy") +"</p>\n" +
-                        "            <p><strong>Numéro de la facture :</strong> " + pdfFileName + "</p>\n" +
-                        "        </div>\n" +
-                        "\n" +
+                        "    <img src=\"https://www.ugap.fr/_nuxt/img/logo_ugap.02a35b1.svg\" alt=\"Logo de l'entreprise\">\n" +
+                        "    <!-- Invoice Header -->\n" +
+                        "    <h1>Facture</h1>\n" +
+                        "    <p><strong>Nom de l'entreprise</strong></p>\n" +
+                        "    <p>Adresse de l'entreprise</p>\n" +
+                        "    <p>Email : contact@entreprise.com</p>\n" +
+                        "    <p>Téléphone : +33 1 23 45 67 89</p>\n" +
+                        "    <hr>\n" +
+                        "    <!-- Customer Details -->\n" +
+                        "    <h2>À :</h2>\n" +
+                        "    <p><strong>Nom du client</strong></p>\n" +
+                        "    <p>Adresse du client</p>\n" +
+                        "    <p>Email : client@example.com</p>\n" +
+                        "    <p>Téléphone : +33 6 78 90 12 34</p>\n" +
+                        "    <hr>\n" +
+                        "    <!-- Invoice Info -->\n" +
+                        "    <p><strong>Date de la facture :</strong> " + getCurrentDateWithPattern("d MMMM yyyy") + " </p>\n" +
+                        "    <p><strong>Numéro de la facture :</strong> " + pdfFileName + "</p>\n" +
+                        "    <hr>\n" +
                         itemsDescription +
-                        "\n" +
-                        "        <!-- Footer -->\n" +
-                        "        <div class=\"footer\">\n" +
-                        "            <p>Merci pour votre confiance.</p>\n" +
-                        "            <p>Nom de l'entreprise - www.entreprise.com</p>\n" +
-                        "        </div>\n" +
-                        "    </div>\n" +
+
+                        "    <hr>\n" +
+                        "    <!-- Footer -->\n" +
+                        "    <p>Merci pour votre confiance.</p>\n" +
+                        "    <p>Nom de l'entreprise - www.entreprise.com</p>\n" +
                         "</body>\n" +
                         "</html>";
+
         return invoiceContent;
     }
 
@@ -292,8 +217,11 @@ public class PdfGenerationAction extends Action {
         // Get the current date
         LocalDate currentDate = LocalDate.now();
 
-        // Create a DateTimeFormatter with the provided pattern
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+        // Get the system's default locale
+        Locale defaultLocale = Locale.getDefault();
+
+        // Create a DateTimeFormatter with the provided pattern and the system's default locale
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern, defaultLocale);
 
         // Format the current date
         return currentDate.format(formatter);
