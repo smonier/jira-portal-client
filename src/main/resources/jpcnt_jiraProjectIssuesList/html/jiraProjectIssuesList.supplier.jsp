@@ -20,11 +20,13 @@
 <%--@elvariable id="url" type="org.jahia.services.render.URLGenerator"--%>
 
 <template:addResources type="css" resources="jquery.dataTables.min.css"/>
+<template:addResources type="css" resources="dataTables.bootstrap4.min.css"/>
+
 <template:addResources type="css" resources="jiraTable.css"/>
 
 <template:addResources type="javascript" resources="jiraPortal.js"/>
 <template:addResources type="javascript" resources="jquery.dataTables.min.js"/>
-<template:addResources type="javascript" resources="marked.min.js"/>
+<template:addResources type="javascript" resources="dataTables.bootstrap4.min.js"/>
 
 
 <c:set var="title" value="${currentNode.properties['jcr:title'].string}"/>
