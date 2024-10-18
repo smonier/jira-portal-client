@@ -89,11 +89,12 @@ public class PdfGenerationAction extends Action {
 
         LOGGER.info("Generating PDF for issue key: {} in instance: {}", issueKey, jiraInstance);
         String pdfFileName = getParameter(parameters, "pdfFileName");
-
+        JCRUserNode user = JahiaUserManagerService.getInstance().lookupUserByPath(renderContext.getUser().getLocalPath());
+        JCRNodeWrapper userNode = session.getNode(user.getPath());
         // Get HTML content from Jira issue
         String htmlContent = jiraToHtml(jiraIssueService.getIssueDescription(jiraInstance, issueKey));
         LOGGER.info("HTML content retrieved for issue {}: {}", issueKey, htmlContent);
-        String invoiceContent = generateInvoice(pdfFileName,htmlContent);
+        String invoiceContent = generateInvoice(pdfFileName,htmlContent,userNode);
         // Generate PDF from HTML
         ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream();
         try {
@@ -171,7 +172,7 @@ public class PdfGenerationAction extends Action {
         });
     }
 
-    private String generateInvoice(String pdfFileName, String itemsDescription) {
+    private String generateInvoice(String pdfFileName, String itemsDescription,JCRNodeWrapper userNode) {
         String invoiceContent =
                 "<!DOCTYPE html>\n" +
                         "<html lang=\"fr\">\n" +
@@ -184,10 +185,10 @@ public class PdfGenerationAction extends Action {
                         "    <img src=\"https://www.ugap.fr/_nuxt/img/logo_ugap.02a35b1.svg\" alt=\"Logo de l'entreprise\">\n" +
                         "    <!-- Invoice Header -->\n" +
                         "    <h1>Facture</h1>\n" +
-                        "    <p><strong>Nom de l'entreprise</strong></p>\n" +
-                        "    <p>Adresse de l'entreprise</p>\n" +
-                        "    <p>Email : contact@entreprise.com</p>\n" +
-                        "    <p>Téléphone : +33 1 23 45 67 89</p>\n" +
+                        "    <p><strong>"+ userNode.getPropertyAsString("j:firstName") +" "+ userNode.getPropertyAsString("j:lastName")+"</strong></p>\n" +
+                        "    <p>"+ userNode.getPropertyAsString("j:email") +"</p>\n" +
+                        "    <p>"+ userNode.getPropertyAsString("j:function") +"</p>\n" +
+                        "    <p>"+ userNode.getPropertyAsString("j:organization") +"</p>\n" +
                         "    <hr>\n" +
                         "    <!-- Customer Details -->\n" +
                         "    <h2>À :</h2>\n" +
@@ -205,7 +206,7 @@ public class PdfGenerationAction extends Action {
                         "    <hr>\n" +
                         "    <!-- Footer -->\n" +
                         "    <p>Merci pour votre confiance.</p>\n" +
-                        "    <p>Nom de l'entreprise - www.entreprise.com</p>\n" +
+                        "    <p>"+ userNode.getPropertyAsString("j:organization") +"</p>\n" +
                         "</body>\n" +
                         "</html>";
 

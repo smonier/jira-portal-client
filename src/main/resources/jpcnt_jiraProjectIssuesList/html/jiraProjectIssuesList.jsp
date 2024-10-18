@@ -30,17 +30,27 @@
 <c:set var="jiraProject" value="${currentNode.properties['projectName'].string}"/>
 <c:set var="activateButton" value="${currentNode.properties['activateButton'].string}"/>
 <c:set var="buttonLabel" value="${currentNode.properties['buttonLabel'].string}"/>
-<c:set var="useUnomiProfileProperty" value="${currentNode.properties['useUnomiProfileProperty'].string}"/>
+<c:set var="useUnomiProfileProperty" value="${currentNode.properties['useUnomiProfileProperty'].getBoolean()}"/>
+<c:set var="useJiraCustomField" value="${currentNode.properties['useJiraCustomField'].getBoolean()}"/>
+
 <c:set var="context" value="${renderContext}"/>
 <c:choose>
     <c:when test="${useUnomiProfileProperty}">
-        <c:set var="jiraIssueList" value="${jira:getJiraIssuesFromUnomi(jiraInstance,jiraProject, context)}"/>
+        <c:set var="jiraIssueList" value="${jira:getJiraIssuesFromUnomi(jiraInstance, jiraProject, renderContext)}"/>
+    </c:when>
+    <c:when test="${useJiraCustomField}">
+        <c:set var="jiraIssueList" value="${jira:getIssuesByCustomField(jiraInstance,jiraProject,renderContext)}"/>
     </c:when>
     <c:otherwise>
-        <c:set var="jiraIssueList" value="${jira:getJiraIssues(jiraInstance,jiraProject)}"/>
+        <c:set var="jiraIssueList" value="${jira:getJiraIssues(jiraInstance, jiraProject)}"/>
     </c:otherwise>
 </c:choose>
 
+<jcr:node var="user" path="${context.user.localPath}"/>
+<jcr:nodeProperty var="firstName" node="${user}" name="j:firstName"/>
+<jcr:nodeProperty var="lastName" node="${user}" name="j:lastName"/>
+<jcr:nodeProperty var="email" node="${user}" name="j:email"/>
+<c:set var="loggedInUser" value="${firstName} ${lastName} (${email})"/>
 
 <div class="portal-header" id="tableContainer-${currentNode.UUID}">
     <div class="module_header">
@@ -255,3 +265,12 @@
 
 </script>
 
+<!-- Spinner Overlay (initially hidden) -->
+<div id="spinner-overlay" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 9999; text-align: center;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+        <div class="spinner-border" role="status" style="width: 3rem; height: 3rem; color: white;">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <p style="color: white; margin-top: 10px;">Loading ...</p> <!-- Add loading text -->
+    </div>
+</div>

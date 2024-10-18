@@ -1,4 +1,4 @@
-function handleActionChange(selectElement, issueKey, jiraInstance, jiraProject,actionUrl) {
+function handleActionChange(selectElement, issueKey, jiraInstance, jiraProject, actionUrl) {
     var selectedValue = selectElement.value;
 
     // Check the selected option and perform the corresponding action
@@ -7,8 +7,9 @@ function handleActionChange(selectElement, issueKey, jiraInstance, jiraProject,a
         openCommentModal(issueKey, jiraInstance, jiraProject);
         $('#commentModal').modal('show');  // This line opens the modal using jQuery/Bootstrap
     } else if (selectedValue === 'createInvoice') {
+        document.getElementById('spinner-overlay').style.display = 'block';
         // Add your logic for creating an invoice here
-        createInvoice(issueKey, jiraInstance, jiraProject,actionUrl);
+        createInvoice(issueKey, jiraInstance, jiraProject, actionUrl);
     }
 
     // Reset the select after the action is triggered
@@ -16,36 +17,46 @@ function handleActionChange(selectElement, issueKey, jiraInstance, jiraProject,a
 }
 
 // Example function for creating an invoice
-async function createInvoice(issueKey, jiraInstance, jiraProject,actionUrl) {
-    var pdfFileName = issueKey + "-" + generateTimestamp();
-    const formData = new FormData();
-    formData.append('jiraInstance', jiraInstance);
-    formData.append('jiraProject', jiraProject);
-    formData.append('pdfFileName', pdfFileName);
-    formData.append('issueKey', issueKey);
+function createInvoice(issueKey, jiraInstance, jiraProject, actionUrl) {
+    setTimeout(async function () {
+        var pdfFileName = issueKey + "-" + generateTimestamp();
+        const formData = new FormData();
+        formData.append('jiraInstance', jiraInstance);
+        formData.append('jiraProject', jiraProject);
+        formData.append('pdfFileName', pdfFileName);
+        formData.append('issueKey', issueKey);
 
-    console.log("Create Invoice action triggered for", pdfFileName);
-    // Implement your logic for invoice creation
-    try {
-        const response = await fetch(actionUrl, {
-            method: 'POST',
-            body: formData
-        });
+        console.log("Create Invoice action triggered for", pdfFileName);
 
-        if (response.ok) {
-            const result = await response.text();
-            alert("Commande : " + pdfFileName + " créée");
+        // Simulate an async operation (e.g., AJAX call)
+        // You should replace this with your actual AJAX or asynchronous logic
+        // Simulate processing
+        console.log("Processing action for issue: " + issueKey);
 
-        } else {
-            alert("Error creating PDF: " + response.status + " " + response.message);
+
+        try {
+            const response = await fetch(actionUrl, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const result = await response.text();
+                alert("Commande : " + pdfFileName + " créée");
+
+            } else {
+                alert("Error creating PDF: " + response.status + " " + response.message);
+            }
+        } catch (error) {
+            alert("Request failed: " + error.message);
         }
-    } catch (error) {
-        alert("Request failed: " + error.message);
-    }
+        document.getElementById('spinner-overlay').style.display = 'none';
+    }, 3000);
 }
 
-
-async function addNewComment(actionUrl,user) {
+async function addNewComment(actionUrl, user) {
+    document.getElementById('spinner-overlay').style.display = 'block';
+    setTimeout(async function () {
     var form = document.getElementById('commentForm');
     var commentIssueKey = form.getAttribute('data-issue-key');
     var jiraInstance = form.getAttribute('data-jira-instance');
@@ -69,7 +80,7 @@ async function addNewComment(actionUrl,user) {
 
         if (response.ok) {
             const result = await response.text();
-           // alert("Comment added successfully for Request : " + commentIssueKey);
+            // alert("Comment added successfully for Request : " + commentIssueKey);
             $('#commentModal').modal('hide');
             location.reload(true);
         } else {
@@ -78,6 +89,8 @@ async function addNewComment(actionUrl,user) {
     } catch (error) {
         alert("Request failed: " + error.message);
     }
+        document.getElementById('spinner-overlay').style.display = 'none';
+    }, 3000);
 }
 
 function openCommentModal(issueKey, jiraInstance, jiraProject) {
@@ -94,44 +107,49 @@ function openCommentModal(issueKey, jiraInstance, jiraProject) {
 }
 
 async function updateIssueStatus(jiraInstance, jiraProject, jiraIssueKey, jiraNewStatus, actionURL, targetProjectKey) {
-    const selectedStatus = jiraNewStatus;
+    document.getElementById('spinner-overlay').style.display = 'block';
+    setTimeout(async function () {
+        const selectedStatus = jiraNewStatus;
 
-    // Check if a valid status is selected
-    if (!selectedStatus) {
-        alert("Please select a status.");
-        return;
-    }
-
-    // Assuming these variables are available in the context
-    const issueKey = jiraIssueKey; // Replace with your actual issue key
-
-    const formData = new FormData();
-    formData.append('jiraInstance', jiraInstance);
-    formData.append('jiraProject', jiraProject);
-    formData.append('jiraAction', "updateStatus");
-    formData.append('issueKey', issueKey);
-    formData.append('newStatus', selectedStatus);
-    formData.append('targetProjectKey', targetProjectKey);
-
-    try {
-        const response = await fetch(actionURL, {
-            method: 'POST',
-            body: formData
-        });
-
-        if (response.ok) {
-            const result = await response.text();
-        //    alert("Status updated successfully for Request : " + issueKey);
-            location.reload(true);
-        } else {
-            alert("Error updating status: " + response.status + " " + response.statusText);
+        // Check if a valid status is selected
+        if (!selectedStatus) {
+            alert("Please select a status.");
+            return;
         }
-    } catch (error) {
-        alert("Request failed: " + error.message);
-    }
+
+
+        // Assuming these variables are available in the context
+        const issueKey = jiraIssueKey; // Replace with your actual issue key
+
+        const formData = new FormData();
+        formData.append('jiraInstance', jiraInstance);
+        formData.append('jiraProject', jiraProject);
+        formData.append('jiraAction', "updateStatus");
+        formData.append('issueKey', issueKey);
+        formData.append('newStatus', selectedStatus);
+        formData.append('targetProjectKey', targetProjectKey);
+
+        try {
+            const response = await fetch(actionURL, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const result = await response.text();
+                //    alert("Status updated successfully for Request : " + issueKey);
+                location.reload(true);
+            } else {
+                alert("Error updating status: " + response.status + " " + response.statusText);
+            }
+        } catch (error) {
+            alert("Request failed: " + error.message);
+        }
+        document.getElementById('spinner-overlay').style.display = 'none';
+    }, 3000);
 }
 
-async function submitNewIssue(jiraInstance, jiraProject,actionURL) {
+async function submitNewIssue(jiraInstance, jiraProject, actionURL) {
     // Get form data
     const summary = document.getElementById('summary').value;
     const description = document.getElementById('description').value;
@@ -167,7 +185,7 @@ async function submitNewIssue(jiraInstance, jiraProject,actionURL) {
         // Check response status
         if (response.ok) {
             const result = await response.text();
-        //    alert("Issue created successfully " + result);
+            //    alert("Issue created successfully " + result);
             location.reload(true);
 
         } else {

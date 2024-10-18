@@ -250,3 +250,12 @@
     });
 </script>
 
+<!-- Spinner Overlay (initially hidden) -->
+<div id="spinner-overlay" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 9999; text-align: center;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+        <div class="spinner-border" role="status" style="width: 3rem; height: 3rem; color: white;">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <p style="color: white; margin-top: 10px;">Loading ...</p> <!-- Add loading text -->
+    </div>
+</div>
