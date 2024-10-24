@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jahia.modules.jexperience.admin.ContextServerService;
 import org.jahia.se.modules.jiraportalclient.model.IssueType;
 import org.jahia.se.modules.jiraportalclient.model.Status;
-import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.render.RenderContext;
 import org.json.JSONArray;
@@ -16,7 +15,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.unomi.api.PropertyType;
 
 import java.io.*;
 import java.net.*;
@@ -26,7 +24,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import org.jahia.se.modules.jiraportalclient.model.JiraIssue;
-import org.jahia.se.modules.jiraportalclient.functions.PortalFunctions;
+import org.jahia.se.modules.jiraportalclient.functions.UnomiUtils;
 
 import javax.jcr.RepositoryException;
 
@@ -150,9 +148,9 @@ public class JiraIssueList {
             }
 
             // Instantiate PortalFunctions with valid site and contextServerService
-            PortalFunctions portalFunctions = new PortalFunctions(site, contextServerService);
+            UnomiUtils unomiUtils = new UnomiUtils(site, contextServerService);
 
-            String jiraProjectNameValue = portalFunctions.getPropertyValue("jiraProjectName", renderContext);
+            String jiraProjectNameValue = unomiUtils.getPropertyValue("jiraProjectName", renderContext);
 
             // Check if a Jira project name was retrieved from Unomi
             if (jiraProjectNameValue != null) {
@@ -233,12 +231,12 @@ public class JiraIssueList {
         }
 
         // Initialize PortalFunctions
-        PortalFunctions portalFunctions = new PortalFunctions(site, contextServerService);
+        UnomiUtils unomiUtils = new UnomiUtils(site, contextServerService);
 
         // Retrieve custom field information and project name
-        String jiraCustomField = portalFunctions.getPropertyValue("jiraCustomField", renderContext);
-        String jiraCustomFieldValue = portalFunctions.getPropertyValue("jiraCustomFieldValue", renderContext);
-        String jiraProjectNameValue = portalFunctions.getPropertyValue("jiraProjectName", renderContext);
+        String jiraCustomField = unomiUtils.getPropertyValue("jiraCustomField", renderContext);
+        String jiraCustomFieldValue = unomiUtils.getPropertyValue("jiraCustomFieldValue", renderContext);
+        String jiraProjectNameValue = unomiUtils.getPropertyValue("jiraProjectName", renderContext);
 
         // Override project key if a value is retrieved from the profile
         if (jiraProjectNameValue != null) {

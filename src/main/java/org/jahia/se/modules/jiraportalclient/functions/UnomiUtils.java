@@ -1,13 +1,10 @@
 
 package org.jahia.se.modules.jiraportalclient.functions;
 
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.Response;
 import org.jahia.modules.jexperience.admin.ContextServerService;
 import org.jahia.services.content.decorator.JCRSiteNode;
-
 import org.jahia.services.render.RenderContext;
-import org.json.JSONArray;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.osgi.service.component.annotations.Component;
@@ -20,16 +17,12 @@ import org.apache.unomi.api.Item;
 import org.apache.unomi.api.Profile;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import javax.jcr.RepositoryException;
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 @Component
-public class PortalFunctions {
+public class UnomiUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(PortalFunctions.class);
+    private static final Logger logger = LoggerFactory.getLogger(UnomiUtils.class);
     private ContextServerService contextServerService;
     private JCRSiteNode site;
 
@@ -42,7 +35,7 @@ public class PortalFunctions {
         this.site = site;
     }
 
-    public PortalFunctions(JCRSiteNode site, ContextServerService contextServerService) {
+    public UnomiUtils(JCRSiteNode site, ContextServerService contextServerService) {
         if (site == null || contextServerService == null) {
             throw new IllegalArgumentException("Site or ContextServerService cannot be null");
         }
