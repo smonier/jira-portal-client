@@ -89,6 +89,7 @@
             <c:forEach items="${jiraIssueList}" var="jiraIssue" varStatus="status">
                 <c:set var="statusList" value="${jira:getAvailableTransitions(jiraInstance, jiraIssue.getKey())}"/>
                 <c:set var="activityList" value="${jira:getIssueActivities(jiraInstance, jiraIssue.getKey())}"/>
+                <c:set var="activityListFormatted" value=""/>
 
                 <c:if test="${not empty activityList}">
                     <c:set var="activityListFormatted" value="<strong>Activities: </strong><br/>"/>
@@ -156,7 +157,7 @@
                         <textarea class="form-control" id="commentText" name="commentText" rows="4" placeholder="Enter your comment here" required></textarea>
                     </div>
                     <c:url var="actionURL" value="${url.base}${currentNode.path}.requestJiraUpdate.do"/>
-                    <button type="button" class="btn btn-primary" onclick="addNewComment('${actionURL}')">Add Comment</button>                </form>
+                    <button type="button" class="btn btn-primary" onclick="addNewComment('${actionURL}','${loggedInUser}')">Add Comment</button>                </form>
             </div>
         </div>
     </div>

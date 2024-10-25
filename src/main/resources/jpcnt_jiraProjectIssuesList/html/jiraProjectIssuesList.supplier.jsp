@@ -35,8 +35,23 @@
 <c:set var="activateButton" value="${currentNode.properties['activateButton'].string}"/>
 <c:set var="buttonLabel" value="${currentNode.properties['buttonLabel'].string}"/>
 <c:set var="context" value="${renderContext}"/>
-<%--<c:set var="statusList" value="${['Requested', 'In Review', 'Approved', 'Rejected']}"/>--%>
-<c:set var="jiraIssueList" value="${jira:getIssuesByCustomField(jiraInstance,jiraProject,context)}"/>
+<c:choose>
+    <c:when test="${useUnomiProfileProperty}">
+        <c:set var="jiraIssueList" value="${jira:getJiraIssuesFromUnomi(jiraInstance, jiraProject, renderContext)}"/>
+    </c:when>
+    <c:when test="${useJiraCustomField}">
+        <c:set var="jiraIssueList" value="${jira:getIssuesByCustomField(jiraInstance,jiraProject,renderContext)}"/>
+    </c:when>
+    <c:otherwise>
+        <c:set var="jiraIssueList" value="${jira:getJiraIssues(jiraInstance, jiraProject)}"/>
+    </c:otherwise>
+</c:choose>
+
+<jcr:node var="user" path="${context.user.localPath}"/>
+<jcr:nodeProperty var="firstName" node="${user}" name="j:firstName"/>
+<jcr:nodeProperty var="lastName" node="${user}" name="j:lastName"/>
+<jcr:nodeProperty var="email" node="${user}" name="j:email"/>
+<c:set var="loggedInUser" value="${firstName} ${lastName} (${email})"/>
 
 
 <div class="portal-header" id="tableContainer-${currentNode.UUID}">
@@ -140,7 +155,7 @@
                         <textarea class="form-control" id="commentText" name="commentText" rows="4" placeholder="Enter your comment here" required></textarea>
                     </div>
                     <c:url var="actionURL" value="${url.base}${currentNode.path}.requestJiraUpdate.do"/>
-                    <button type="button" class="btn btn-primary" onclick="addNewComment('${actionURL}')">Add Comment
+                    <button type="button" class="btn btn-primary" onclick="addNewComment('${actionURL}','${loggedInUser}')">Add Comment
                     </button>
                 </form>
             </div>
