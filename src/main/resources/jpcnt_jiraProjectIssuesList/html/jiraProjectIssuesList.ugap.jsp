@@ -118,7 +118,8 @@
                         <c:url var="actionURL" value="${url.base}${currentNode.path}.requestJiraUpdate.do"/>
                         <c:set var="triggerStatusId" value="${currentNode.properties['triggerStatusId'].string}"/>
 
-                        <select onchange="updateIssueStatus('${jiraInstance}', '${jiraProject}', '${jiraIssue.getKey()}', this.value,'${actionURL}','${targetProjectKey}','${triggerStatusId}')">
+                        <select  class="form-control-sm"
+                                 onchange="updateIssueStatus('${jiraInstance}', '${jiraProject}', '${jiraIssue.getKey()}', this.value,'${actionURL}','${targetProjectKey}','${triggerStatusId}')">
                             <option value="">Selectionner Statut</option>
                             <c:forEach items="${statusList}" var="status">
                                 <option value="${status.getId()}"
@@ -192,12 +193,12 @@
     </div>
 </div>
 <!-- Modal -->
-<div class="modal fade" id="newJiraModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+<div class="modal fade" id="newJiraModal" tabindex="-1" role="dialog" aria-labelledby="newJiraModalLabel"
      aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">${buttonLabel}</h5>
+                <h5 class="modal-title" id="newJiraModalLabel">${buttonLabel}</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -268,6 +269,7 @@
         </div>
     </div>
 </div>
+
 <script>
     $(document).ready(function () {
         // Initialize DataTables
@@ -279,10 +281,10 @@
             scrollCollapse: true,
             columnDefs: [{width: "5%", targets: 0}],
             language: {
-                emptyTable: 'No Tickets found'
+                emptyTable: 'No Issues found'
             },
             lengthChange: false,
-            pageLength: 10,
+            pageLength: 5,
             autoWidth: false,
             responsive: true,
             searching: true,

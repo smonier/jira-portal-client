@@ -13,6 +13,7 @@
     padding: 10px; /* Add padding to make it look nice */
     word-wrap: break-word; /* Ensure text wraps within the container */
     white-space: normal; /* Override any inherited nowrap styles */
+    text-align: left !important;
 }
 .module_header {
     display: flex;

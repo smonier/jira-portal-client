@@ -233,14 +233,15 @@
             bInfo: true,
             scrollY: '50vh', // Set a reasonable scroll height
             scrollCollapse: true,
-            columnDefs: [{ width: "5%", targets: 0 }],
+            columnDefs: [{width: "5%", targets: 0}],
             language: {
-                emptyTable: 'No Tickets found'
+                emptyTable: 'No Issues found'
             },
             lengthChange: false,
-            pageLength: 10,
+            pageLength: 5,
             autoWidth: false,
-            responsive: true
+            responsive: true,
+            searching: true,
         });
 
         // Handle click event on the control cell to toggle collapsible row

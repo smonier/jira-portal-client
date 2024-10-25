@@ -224,9 +224,10 @@
                 emptyTable: 'No Tickets found'
             },
             lengthChange: false,
-            pageLength: 10,
+            pageLength: 5,
             autoWidth: false,
-            responsive: true
+            responsive: true,
+            searching: true,
         });
 
         // Handle click event on the control cell to toggle collapsible row
