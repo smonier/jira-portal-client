@@ -116,8 +116,9 @@
                     <td>${jiraIssue.getStatus()}</td>
                     <td>
                         <c:url var="actionURL" value="${url.base}${currentNode.path}.requestJiraUpdate.do"/>
+                        <c:set var="triggerStatusId" value="${currentNode.properties['triggerStatusId'].string}"/>
 
-                        <select onchange="updateIssueStatus('${jiraInstance}', '${jiraProject}', '${jiraIssue.getKey()}', this.value,'${actionURL}','${targetProjectKey}')">
+                        <select onchange="updateIssueStatus('${jiraInstance}', '${jiraProject}', '${jiraIssue.getKey()}', this.value,'${actionURL}','${targetProjectKey}','${triggerStatusId}')">
                             <option value="">Selectionner Statut</option>
                             <c:forEach items="${statusList}" var="status">
                                 <option value="${status.getId()}"
@@ -131,11 +132,13 @@
                     <td>${jiraIssue.getDateModified()}</td>
                     <td>
                         <c:choose>
-                            <c:when test="${activatePdfCreation}">
+                            <c:when test="${jcr:isNodeType(currentNode, 'jpcmix:pdfCreation')}">
+                                <c:set var="folderName" value="${currentNode.properties['folderName'].string}"/>
+
                                 <!-- Display the select when activatePdfCreation is true -->
                                 <c:url var="actionURL2" value="${url.base}${currentNode.path}.generatePdfFromHtml.do"/>
                                 <select class="form-control-sm"
-                                        onchange="handleActionChange(this, '${jiraIssue.getKey()}', '${jiraInstance}', '${jiraProject}', '${actionURL2}')">
+                                        onchange="handleActionChange(this, '${jiraIssue.getKey()}', '${jiraInstance}', '${jiraProject}', '${actionURL2}', '${folderName}')">
                                     <option value="" disabled selected>Select action</option>
                                     <option value="addComment">Commentaire</option>
                                     <option value="createInvoice">Créer Facture</option>

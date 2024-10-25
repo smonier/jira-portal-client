@@ -89,6 +89,7 @@ public class PdfGenerationAction extends Action {
 
         LOGGER.info("Generating PDF for issue key: {} in instance: {}", issueKey, jiraInstance);
         String pdfFileName = getParameter(parameters, "pdfFileName");
+
         JCRUserNode user = JahiaUserManagerService.getInstance().lookupUserByPath(renderContext.getUser().getLocalPath());
         JCRNodeWrapper userNode = session.getNode(user.getPath());
         // Get HTML content from Jira issue
@@ -122,9 +123,12 @@ public class PdfGenerationAction extends Action {
 
                     // Define file name
                     String pdfFileName = getParameter(parameters, "pdfFileName");
+                    String folderName = getParameter(parameters, "folderName");
+
                     if (pdfFileName == null || pdfFileName.isEmpty()) {
                         pdfFileName = issueKey + ".pdf";  // Default file name if not provided
                     }
+                    LOGGER.info("folder: {},  file: {}", folderName, pdfFileName);
 
                     // Create or get the 'factures' folder
                     JCRNodeWrapper filesNode;
@@ -137,13 +141,13 @@ public class PdfGenerationAction extends Action {
                     }
                     JCRNodeWrapper filesFolderNode = userNode.getNode("files");
 
-                    if (!filesFolderNode.hasNode("factures")) {
-                        filesNode = filesFolderNode.addNode("factures", "jnt:folder");
+                    if (!filesFolderNode.hasNode(folderName)) {
+                        filesNode = filesFolderNode.addNode(folderName, "jnt:folder");
                         filesNode.addMixin("jmix:autoPublish");
-                        LOGGER.info("Created new 'factures' folder for user: {}", userNode.getPath());
+                        LOGGER.info("Created new {} folder for user: {}", folderName, userNode.getPath());
                     } else {
-                        filesNode = filesFolderNode.getNode("factures");
-                        LOGGER.info("'Factures' folder exists for user: {}", userNode.getPath());
+                        filesNode = filesFolderNode.getNode(folderName);
+                        LOGGER.info("{} folder exists for user: {}", folderName, userNode.getPath());
                     }
 
                     // Convert the PDF stream to InputStream and store it

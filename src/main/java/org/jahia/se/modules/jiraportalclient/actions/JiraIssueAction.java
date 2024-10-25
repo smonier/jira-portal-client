@@ -167,13 +167,15 @@ public class JiraIssueAction extends Action {
         String issueKey = retrieveParameter(parameters, "issueKey");
         String newStatus = retrieveParameter(parameters, "newStatus");
         String targetProjectKey = retrieveParameter(parameters, "targetProjectKey");
-        LOGGER.info("targetProjectKey : {}", targetProjectKey);
+        String triggerStatusId = retrieveParameter(parameters, "triggerStatusId");
+
+        LOGGER.info("targetProjectKey : {}, triggerStatusId : {}", targetProjectKey, triggerStatusId);
         if (issueKey == null || newStatus == null) {
             LOGGER.error("Missing required parameters: issueKey or newStatus");
             return false;
         }
 
-        if (newStatus.equals("14")) {
+        if (newStatus.equals(triggerStatusId)) {
             return jiraIssueService.updateIssueStatus(jiraInstance, issueKey, newStatus) &&
                    jiraIssueService.moveIssue(jiraInstance, issueKey, targetProjectKey);
         } else {

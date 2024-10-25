@@ -11,9 +11,14 @@
  - projectName (String)
  - activateButton (boolean)
  - buttonLabel (String)
- - targetProjectKey (String)
- - activatePdfCreation (boolean)
  - useUnomiProfileProperty (boolean)
  - useJiraCustomField (boolean)
 
+[jpcmix:targetProject] mixin
+extends = jpcnt:jiraProjectIssuesList
+ - targetProjectKey (String)
+ - triggerStatusId (String)
 
+[jpcmix:pdfCreation] mixin
+extends = jpcnt:jiraProjectIssuesList
+ - folderName (String)

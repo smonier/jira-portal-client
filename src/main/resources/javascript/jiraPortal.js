@@ -1,4 +1,4 @@
-function handleActionChange(selectElement, issueKey, jiraInstance, jiraProject, actionUrl) {
+function handleActionChange(selectElement, issueKey, jiraInstance, jiraProject, actionUrl, folderName) {
     var selectedValue = selectElement.value;
 
     // Check the selected option and perform the corresponding action
@@ -9,7 +9,7 @@ function handleActionChange(selectElement, issueKey, jiraInstance, jiraProject, 
     } else if (selectedValue === 'createInvoice') {
         document.getElementById('spinner-overlay').style.display = 'block';
         // Add your logic for creating an invoice here
-        createInvoice(issueKey, jiraInstance, jiraProject, actionUrl);
+        createInvoice(issueKey, jiraInstance, jiraProject, actionUrl,folderName);
     }
 
     // Reset the select after the action is triggered
@@ -17,7 +17,7 @@ function handleActionChange(selectElement, issueKey, jiraInstance, jiraProject, 
 }
 
 // Example function for creating an invoice
-function createInvoice(issueKey, jiraInstance, jiraProject, actionUrl) {
+function createInvoice(issueKey, jiraInstance, jiraProject, actionUrl, folderName) {
     setTimeout(async function () {
         var pdfFileName = issueKey + "-" + generateTimestamp();
         const formData = new FormData();
@@ -25,8 +25,11 @@ function createInvoice(issueKey, jiraInstance, jiraProject, actionUrl) {
         formData.append('jiraProject', jiraProject);
         formData.append('pdfFileName', pdfFileName);
         formData.append('issueKey', issueKey);
+        formData.append('folderName', folderName);
 
-        console.log("Create Invoice action triggered for", pdfFileName);
+
+        console.log("Create PDF action triggered for", pdfFileName);
+        console.log("Create PDF action triggered for folder", folderName);
 
         // Simulate an async operation (e.g., AJAX call)
         // You should replace this with your actual AJAX or asynchronous logic
@@ -106,7 +109,7 @@ function openCommentModal(issueKey, jiraInstance, jiraProject) {
     document.getElementById('commentText').value = '';
 }
 
-async function updateIssueStatus(jiraInstance, jiraProject, jiraIssueKey, jiraNewStatus, actionURL, targetProjectKey) {
+async function updateIssueStatus(jiraInstance, jiraProject, jiraIssueKey, jiraNewStatus, actionURL, targetProjectKey,triggerStatusId) {
     document.getElementById('spinner-overlay').style.display = 'block';
     setTimeout(async function () {
         const selectedStatus = jiraNewStatus;
@@ -116,7 +119,6 @@ async function updateIssueStatus(jiraInstance, jiraProject, jiraIssueKey, jiraNe
             alert("Please select a status.");
             return;
         }
-
 
         // Assuming these variables are available in the context
         const issueKey = jiraIssueKey; // Replace with your actual issue key
@@ -128,6 +130,7 @@ async function updateIssueStatus(jiraInstance, jiraProject, jiraIssueKey, jiraNe
         formData.append('issueKey', issueKey);
         formData.append('newStatus', selectedStatus);
         formData.append('targetProjectKey', targetProjectKey);
+        formData.append('triggerStatusId', triggerStatusId);
 
         try {
             const response = await fetch(actionURL, {
