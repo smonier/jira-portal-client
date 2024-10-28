@@ -79,7 +79,7 @@
                 <th><fmt:message key="table.header.type" /></th>
                 <th><fmt:message key="table.header.key" /></th>
                 <th><fmt:message key="table.header.title" /></th>
-                <th><fmt:message key="table.header.reporter" /></th>
+                <th><fmt:message key="table.header.market" /></th>
                 <th><fmt:message key="table.header.assignee" /></th>
                 <th><fmt:message key="table.header.priority" /></th>
                 <th><fmt:message key="table.header.status" /></th>
@@ -110,7 +110,7 @@
                         <a href="https://${jiraInstance}.atlassian.net/browse/${jiraIssue.getKey()}" target="_blank">${jiraIssue.getKey()}</a>
                     </td>
                     <td>${jiraIssue.getSummary()}</td>
-                    <td>${jiraIssue.getReporter()}</td>
+                    <td>${jiraIssue.getMarketNum()}</td>
                     <td>${jiraIssue.getAssignee()}</td>
                     <td><img height="16" width="16" src="${jiraIssue.getPriorityIconUrl()}"
                              alt="${jiraIssue.getPriority()}" title="${jiraIssue.getPriority()}"/></td>

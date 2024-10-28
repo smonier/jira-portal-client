@@ -1,0 +1,27 @@
+{
+  "itemId": "jiraCustomFieldValue",
+  "itemType": "propertyType",
+  "version": 1,
+  "target": "profiles",
+  "dateRanges": [],
+  "numericRanges": [],
+  "ipRanges": [],
+  "automaticMappingsFrom": [],
+  "multivalued": false,
+  "childPropertyTypes": [],
+  "metadata": {
+    "id": "jiraCustomFieldValue",
+    "name": "jiraCustomFieldValue",
+    "tags": [],
+    "systemTags": [
+      "positionInCard.6",
+      "cardDataTag/_hwx0u57rg/3/Jira Case Management",
+      "hasCardDataTag"
+    ],
+    "enabled": true,
+    "missingPlugins": false,
+    "hidden": false,
+    "readOnly": false
+  },
+  "type": "string"
+}

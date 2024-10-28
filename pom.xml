@@ -67,18 +67,14 @@
     <require-capability>osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"</require-capability>
   </properties>
   <dependencies>
+
     <dependency>
       <groupId>org.jahia.modules</groupId>
       <artifactId>jexperience</artifactId>
       <version>3.4.0</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>org.apache.unomi</groupId>
-      <artifactId>unomi-api</artifactId>
-      <version>2.0.0</version>
-      <scope>provided</scope>
-    </dependency>
+
     <dependency>
       <groupId>atg.taglib.json</groupId>
       <artifactId>json-taglib</artifactId>
@@ -95,6 +91,56 @@
       <groupId>javax.servlet.jsp</groupId>
       <artifactId>jsp-api</artifactId>
       <version>2.2</version>
+    </dependency>
+    <dependency>
+      <groupId>com.vladsch.flexmark</groupId>
+      <artifactId>flexmark-all</artifactId>
+      <version>0.62.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.gemini.blueprint</groupId>
+      <artifactId>gemini-blueprint-core</artifactId>
+      <version>1.0.2.RELEASE</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcprov-jdk15on</artifactId>
+      <version>1.70</version>
+    </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcpkix-jdk15on</artifactId>
+      <version>1.70</version>
+    </dependency>
+    <dependency>
+      <groupId>com.itextpdf</groupId>
+      <artifactId>itextpdf</artifactId>
+      <version>5.5.13.4</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/com.itextpdf/itext-core -->
+    <dependency>
+      <groupId>com.itextpdf</groupId>
+      <artifactId>itext-core</artifactId>
+      <version>8.0.5</version>
+      <type>pom</type>
+    </dependency>
+
+    <dependency>
+      <groupId>com.itextpdf</groupId>
+      <artifactId>html2pdf</artifactId>
+      <version>5.0.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>1.7.12</version>
     </dependency>
   </dependencies>
   <repositories>

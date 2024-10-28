@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jahia.modules.jexperience.admin.ContextServerService;
 import org.jahia.se.modules.jiraportalclient.model.IssueType;
 import org.jahia.se.modules.jiraportalclient.model.Status;
+import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.render.RenderContext;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,7 +24,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import org.jahia.se.modules.jiraportalclient.model.JiraIssue;
-import org.jahia.se.modules.jiraportalclient.functions.PortalFunctions;
+import org.jahia.se.modules.jiraportalclient.functions.UnomiUtils;
 
 import javax.jcr.RepositoryException;
 
@@ -34,9 +35,10 @@ public class JiraIssueList {
 
     private static String jiraLogin;
     private static String jiraToken;
+
     private static ContextServerService contextServerService;
 
-    @Reference(service = ContextServerService.class)
+    @Reference(service= ContextServerService.class)
     public void setContextServerService(ContextServerService contextServerService) {
         this.contextServerService = contextServerService;
     }
@@ -69,147 +71,252 @@ public class JiraIssueList {
     }
 
     // Method to get Jira Issues
-    public static List<JiraIssue> getJiraIssues(String jiraInstance, String jiraProject) throws IOException, JSONException {
+    public static List<JiraIssue> getJiraIssues(String jiraInstance, String jiraProject) {
         logger.info("Getting Jira Issues from " + jiraInstance + " for the project " + jiraProject);
 
+        // Jira API URL
         String jiraUrl = "https://" + jiraInstance + ".atlassian.net/rest/api/2/search?jql=project=" + jiraProject;
-        String jiraUsername = jiraLogin;
+        String jiraUsername = jiraLogin; // Ensure these variables are initialized
         String jiraOauthToken = jiraToken;
-        List<JiraIssue> JIRAISSUE_ARRAY_LIST = new ArrayList<>();
 
-        String jsonReply;
-        String encoding = Base64.getEncoder().encodeToString((jiraUsername + ":" + jiraOauthToken).getBytes("UTF-8"));
-        URL url = new URL(jiraUrl);
+        List<JiraIssue> jiraIssueList = new ArrayList<>();
+
         try {
+            // Encoding credentials
+            String encoding = Base64.getEncoder().encodeToString((jiraUsername + ":" + jiraOauthToken).getBytes("UTF-8"));
+            URL url = new URL(jiraUrl);
+
+            // Open connection
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestProperty("Content-Type", "application/json");
             http.setRequestProperty("Authorization", "Basic " + encoding);
-            long l = System.currentTimeMillis();
 
-            if (http.getResponseCode() == 201 || http.getResponseCode() == 200) {
+            long startTime = System.currentTimeMillis();
+
+            // Check the response code
+            if (http.getResponseCode() == HttpURLConnection.HTTP_OK || http.getResponseCode() == HttpURLConnection.HTTP_CREATED) {
+                // Read the response
                 InputStream response = http.getInputStream();
-                jsonReply = convertStreamToString(response);
-                JSONObject jiraJsonObject = new JSONObject(jsonReply);
-                JSONArray jiraIssueArray = new JSONArray(jiraJsonObject.optString("issues"));
-                try {
-                    ObjectMapper mapper = new ObjectMapper();
-                    JIRAISSUE_ARRAY_LIST = mapper.readValue(jiraIssueArray.toString(), new TypeReference<List<JiraIssue>>(){});
-                } finally {
-                    http.disconnect();
-                    logger.info(http.getResponseCode() + " " + http.getResponseMessage());
-                    logger.info("Request {} executed in {} ms", url, (System.currentTimeMillis() - l));
-                }
-            }
-        } catch (Exception e) {
-            logger.error("Error connection: "+url);
-            e.printStackTrace();
-            return null;
-        }
-        logger.info("List return from: "+url);
+                String jsonReply = convertStreamToString(response);
 
-        return JIRAISSUE_ARRAY_LIST;
+                // Parse the JSON response
+                JSONObject jiraJsonObject = new JSONObject(jsonReply);
+                JSONArray jiraIssueArray = jiraJsonObject.optJSONArray("issues");
+
+                if (jiraIssueArray != null) {
+                    // Map JSON to list of JiraIssue objects
+                    ObjectMapper mapper = new ObjectMapper();
+                    jiraIssueList = mapper.readValue(jiraIssueArray.toString(), new TypeReference<List<JiraIssue>>() {});
+                }
+
+                // Log the success of the operation
+                logger.info(http.getResponseCode() + " " + http.getResponseMessage());
+                logger.info("Request to {} executed in {} ms", url, (System.currentTimeMillis() - startTime));
+
+            } else {
+                logger.error("Failed to fetch Jira issues: " + http.getResponseCode() + " " + http.getResponseMessage());
+            }
+
+            // Close the connection
+            http.disconnect();
+        } catch (IOException | JSONException e) {
+            logger.error("Error connecting to Jira or processing response: " + jiraUrl, e);
+        }
+
+        // If no issues were found or an error occurred, return an empty list instead of null
+        return jiraIssueList.isEmpty() ? Collections.emptyList() : jiraIssueList;
     }
 
-    // Method to create a new Jira issue
-    public static String createIssue(String jiraInstance, String projectKey, String summary, String description, String issueType) throws IOException {
-        String jiraUrl = "https://" + jiraInstance + ".atlassian.net/rest/api/2/issue";
+
+    public static List<JiraIssue> getJiraIssuesFromUnomi(String jiraInstance, String jiraProject, RenderContext renderContext) {
+        logger.info("Getting Jira Issues from " + jiraInstance + " for the project in Unomi" + jiraProject);
+
+        List<JiraIssue> jiraIssueList = new ArrayList<>();
+
+        try {
+            JCRSiteNode site = renderContext.getSite() != null ? renderContext.getSite().getResolveSite() : null;
+            if (site == null) {
+                logger.error("Site is null, unable to resolve site.");
+                return Collections.emptyList(); // Return an empty list if site is null
+            }
+
+            logger.info("Site Key : " + site);
+
+            if (contextServerService == null) {
+                logger.error("ContextServerService is null, cannot continue.");
+                return Collections.emptyList(); // Return an empty list if contextServerService is null
+            }
+
+            // Instantiate PortalFunctions with valid site and contextServerService
+            UnomiUtils unomiUtils = new UnomiUtils(site, contextServerService);
+
+            String jiraProjectNameValue = unomiUtils.getPropertyValue("jiraProjectName", renderContext);
+
+            // Check if a Jira project name was retrieved from Unomi
+            if (jiraProjectNameValue != null) {
+                jiraProject = jiraProjectNameValue;
+            }
+
+            logger.info("Getting Jira Issues from " + jiraInstance + " for the project " + jiraProject);
+
+            // Proceed with the logic to fetch Jira issues from the Jira API
+            String jiraUrl = "https://" + jiraInstance + ".atlassian.net/rest/api/2/search?jql=project=" + jiraProject;
+            String jiraUsername = jiraLogin;
+            String jiraOauthToken = jiraToken;
+
+            String encoding = Base64.getEncoder().encodeToString((jiraUsername + ":" + jiraOauthToken).getBytes("UTF-8"));
+            URL url = new URL(jiraUrl);
+
+            HttpURLConnection http = (HttpURLConnection) url.openConnection();
+            http.setRequestProperty("Content-Type", "application/json");
+            http.setRequestProperty("Authorization", "Basic " + encoding);
+
+            long startTime = System.currentTimeMillis();
+            if (http.getResponseCode() == 200) {
+                InputStream response = http.getInputStream();
+                String jsonReply = convertStreamToString(response);
+
+                JSONObject jiraJsonObject = new JSONObject(jsonReply);
+                JSONArray jiraIssueArray = jiraJsonObject.optJSONArray("issues");
+
+                logger.debug("JIRA Issues: {}", jiraIssueArray.toString());
+
+                ObjectMapper mapper = new ObjectMapper();
+                jiraIssueList = mapper.readValue(jiraIssueArray.toString(), new TypeReference<List<JiraIssue>>() {});
+
+                http.disconnect();
+                logger.info(http.getResponseCode() + " " + http.getResponseMessage());
+                logger.info("Request {} executed in {} ms", url, (System.currentTimeMillis() - startTime));
+            } else {
+                logger.error("Failed to connect to Jira: " + http.getResponseCode() + " " + http.getResponseMessage());
+            }
+        } catch (IOException | JSONException | RepositoryException e) {
+            logger.error("Error while fetching Jira issues", e);
+        }
+
+        return jiraIssueList.isEmpty() ? Collections.emptyList() : jiraIssueList;
+    }
+
+    /**
+     * Retrieves all issues from a Jira project filtered by a custom field.
+     *
+     * @param jiraInstance the Jira instance (e.g., "yourInstance" in "yourInstance.atlassian.net")
+     * @param projectKey   the key of the Jira project (e.g., "PROJECT-123")
+     * @param renderContext the context of the current rendering operation
+     * @return a list of JiraIssue objects matching the filter criteria
+     * @throws IOException          if there is an issue with the network connection or data processing
+     * @throws JSONException        if there is an error parsing the JSON response
+     * @throws RepositoryException  if there is an issue accessing the repository
+     * @throws ExecutionException   if there is an issue with concurrent execution
+     * @throws InterruptedException if the operation is interrupted
+     */
+    public static List<JiraIssue> getIssuesByCustomField(String jiraInstance, String projectKey, RenderContext renderContext)
+            throws IOException, JSONException, RepositoryException, ExecutionException, InterruptedException {
+
+        List<JiraIssue> JIRAISSUE_ARRAY_LIST = new ArrayList<>();
+
+        // Ensure site is not null
+        JCRSiteNode site = renderContext.getSite() != null ? renderContext.getSite().getResolveSite() : null;
+        if (site == null) {
+            logger.error("Site is null, unable to resolve site.");
+            return Collections.emptyList();
+        }
+
+        logger.info("Site Key : " + site.getSiteKey());
+
+        // Ensure contextServerService is initialized
+        if (contextServerService == null) {
+            logger.error("ContextServerService is null, cannot continue.");
+            return Collections.emptyList();
+        }
+
+        // Initialize PortalFunctions
+        UnomiUtils unomiUtils = new UnomiUtils(site, contextServerService);
+
+        // Retrieve custom field information and project name
+        String jiraCustomField = unomiUtils.getPropertyValue("jiraCustomField", renderContext);
+        String jiraCustomFieldValue = unomiUtils.getPropertyValue("jiraCustomFieldValue", renderContext);
+        String jiraProjectNameValue = unomiUtils.getPropertyValue("jiraProjectName", renderContext);
+
+        // Override project key if a value is retrieved from the profile
+        if (jiraProjectNameValue != null) {
+            projectKey = jiraProjectNameValue;
+        }
+
+        // Determine the correct JQL operator based on the custom field type or other information
+        String jqlOperator = getJqlOperatorForField(jiraCustomField);
+
+        // Jira API URL for search using JQL (Jira Query Language)
+        String jql = String.format("project = %s AND %s %s \"%s\"", projectKey, jiraCustomField, jqlOperator, jiraCustomFieldValue);
+        String jiraUrl = String.format("https://%s.atlassian.net/rest/api/2/search?jql=%s", jiraInstance, urlEncode(jql));
         String encoding = Base64.getEncoder().encodeToString((jiraLogin + ":" + jiraToken).getBytes("UTF-8"));
 
-        JSONObject issueData = new JSONObject();
+        logger.info("CUSTOM FIELD QUERY URL: " + jiraUrl);
+        HttpURLConnection connection = null;
+        BufferedReader in = null;
+
         try {
-            issueData.put("fields", new JSONObject()
-                    .put("project", new JSONObject().put("key", projectKey))
-                    .put("summary", summary)
-                    .put("description", description)
-                    .put("issuetype", new JSONObject().put("name", issueType))
-            );
-        } catch (JSONException e) {
-            logger.error("Error creating JSON for new issue", e);
-            return null;
-        }
+            URL url = new URL(jiraUrl);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Authorization", "Basic " + encoding);
+            connection.setRequestProperty("Content-Type", "application/json");
 
-        URL url = new URL(jiraUrl);
-        HttpURLConnection http = (HttpURLConnection) url.openConnection();
-        http.setRequestMethod("POST");
-        http.setRequestProperty("Content-Type", "application/json");
-        http.setRequestProperty("Authorization", "Basic " + encoding);
-        http.setDoOutput(true);
+            long startTime = System.currentTimeMillis();
 
-        try (OutputStream os = http.getOutputStream()) {
-            byte[] input = issueData.toString().getBytes("utf-8");
-            os.write(input, 0, input.length);
-        }
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK || connection.getResponseCode() == HttpURLConnection.HTTP_CREATED) {
+                InputStream responseStream = connection.getInputStream();
+                String jsonResponse = convertStreamToString(responseStream);
 
-        int responseCode = http.getResponseCode();
-        if (responseCode == HttpURLConnection.HTTP_CREATED) {
-            BufferedReader in = new BufferedReader(new InputStreamReader(http.getInputStream()));
-            String responseLine;
-            StringBuilder response = new StringBuilder();
-            while ((responseLine = in.readLine()) != null) {
-                response.append(responseLine);
+                JSONObject jiraJsonObject = new JSONObject(jsonResponse);
+                JSONArray jiraIssueArray = jiraJsonObject.optJSONArray("issues");
+
+                logger.info("JIRA Response: " + jiraIssueArray.toString());
+
+                if (jiraIssueArray != null) {
+                    try {
+                        ObjectMapper mapper = new ObjectMapper();
+                        JIRAISSUE_ARRAY_LIST = mapper.readValue(jiraIssueArray.toString(), new TypeReference<List<JiraIssue>>() {});
+                    } catch (Exception e) {
+                        logger.error("Error parsing JSON to JiraIssue list: ", e);
+                    }
+                }
+            } else {
+                // Capture error response body for further inspection
+                in = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
+                StringBuilder errorResponse = new StringBuilder();
+                String inputLine;
+
+                while ((inputLine = in.readLine()) != null) {
+                    errorResponse.append(inputLine);
+                }
+
+                logger.error("Failed to retrieve issues: HTTP error code " + connection.getResponseCode() + " " + connection.getResponseMessage());
+                logger.error("Error response: " + errorResponse.toString());
+
+                throw new IOException("Failed to retrieve issues: " + errorResponse.toString());
             }
-            in.close();
-            return response.toString();
-        } else {
-            logger.error("Failed to create issue: HTTP error code : " + responseCode);
-            return null;
-        }
-    }
-    public static List<JiraIssue> getJiraTickets(String jiraInstance, String jiraProject, RenderContext renderContext) throws IOException, JSONException, RepositoryException, InterruptedException, ExecutionException {
 
-        //      RenderContext renderContext = (RenderContext) pageContext.getAttribute("renderContext", PageContext.REQUEST_SCOPE);
-
-        PortalFunctions jiraProjectName = new PortalFunctions();
-
-        String jiraProjectNameValue = jiraProjectName.getPropertyValue("jiraProjectName", renderContext, contextServerService);
-        if (jiraProjectNameValue != null) {
-            jiraProject = jiraProjectNameValue;
-        }
-        logger.info("Getting Jira Issues from " + jiraInstance + " for the project " + jiraProject);
-
-        String jiraUrl = "https://" + jiraInstance + ".atlassian.net/rest/api/2/search?jql=project=" + jiraProject;
-        String jiraUsername = jiraLogin;
-        String jiraOauthToken = jiraToken;
-        logger.info("JiraURL: "+jiraUrl);
-        List<JiraIssue> JIRAISSUE_ARRAY_LIST = new ArrayList<>();
-
-        String jsonReply;
-        String encoding = Base64.getEncoder().encodeToString((jiraUsername + ":" + jiraOauthToken).getBytes("UTF-8"));
-        URL url = new URL(jiraUrl);
-        try {
-            HttpURLConnection http = (HttpURLConnection) url.openConnection();
-            http.setRequestProperty("Content-Type", "application/json");
-            http.setRequestProperty("Authorization", "Basic " + encoding);
-            long l = System.currentTimeMillis();
-
-            if (http.getResponseCode() == 201 || http.getResponseCode() == 200) {
-                InputStream response = http.getInputStream();
-                jsonReply = convertStreamToString(response);
-                JSONObject jiraJsonObject = new JSONObject(jsonReply);
-                JSONArray jiraIssueArray = new JSONArray(jiraJsonObject.optString("issues"));
-                logger.info("JIRA : "+ jiraIssueArray.toString());
+            logger.info("Request {} executed in {} ms", url, (System.currentTimeMillis() - startTime));
+        } catch (Exception e) {
+            logger.error("Error connecting to: " + jiraUrl, e);
+        } finally {
+            if (in != null) {
                 try {
-
-                    ObjectMapper mapper = new ObjectMapper();
-                    JIRAISSUE_ARRAY_LIST = mapper.readValue(jiraIssueArray.toString(), new TypeReference<List<JiraIssue>>() {
-                    });
-
-                } finally {
-                    http.disconnect();
-                    logger.info(http.getResponseCode() + " " + http.getResponseMessage());
-                    logger.info("Request {} executed in {} ms", url, (System.currentTimeMillis() - l));
+                    in.close();
+                } catch (IOException e) {
+                    logger.error("Error closing input stream: ", e);
                 }
             }
-        } catch (Exception e) {
-
-            logger.error("Error connection: " + url);
-            e.printStackTrace();
-            return null;
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
-        logger.info("List return from: " + url);
 
+        logger.info("List returned from: " + jiraUrl);
         return JIRAISSUE_ARRAY_LIST;
     }
+
     // Method to update an existing Jira issue's status
     public static boolean updateIssueStatus(String jiraInstance, String issueKey, String transitionId) throws IOException {
         String jiraUrl = "https://" + jiraInstance + ".atlassian.net/rest/api/2/issue/" + issueKey + "/transitions";
@@ -460,7 +567,7 @@ public class JiraIssueList {
                         String author = comment.getJSONObject("author").getString("displayName");
                         String created = comment.getString("created");
 
-                        activities.add("Comment by " + author + " on " + formatDate(created)+" : " + commentBody);
+                        activities.add("Le " + formatDate(created)+" par  " + commentBody);
                     }
                 } else if (type.equals("changelog")) {
                     JSONObject changelogObject = responseObject.getJSONObject("changelog");
@@ -493,6 +600,33 @@ public class JiraIssueList {
         return activities;
     }
 
+
+    /**
+     * URL-encodes the given string for use in a query parameter.
+     *
+     * @param value the string to encode
+     * @return the URL-encoded string
+     * @throws IOException if encoding fails
+     */
+    private static String urlEncode(String value) throws IOException {
+        return URLEncoder.encode(value, "UTF-8");
+    }
+
+    /**
+     * Determines the appropriate JQL operator for a given custom field.
+     *
+     * @param field the custom field to check
+     * @return the correct JQL operator (e.g., "=", "~", "in")
+     */
+    private static String getJqlOperatorForField(String field) {
+        // This is a simple placeholder logic. You need to implement logic based on your Jira configuration.
+        // For example, if 'EIN' is a text field, you might use '~' instead of '='.
+        if (field.equals("EIN")) {
+            return "~"; // 'contains' operator for text fields
+        }
+        // Add more cases for other fields as needed.
+        return "="; // Default to '=' for standard fields
+    }
     // Helper method to convert InputStream to String
     private static String convertStreamToString(InputStream is) throws IOException {
         StringBuilder sb = new StringBuilder();
@@ -524,5 +658,22 @@ public class JiraIssueList {
         // Format the Date object to the desired output format
         return outputFormat.format(date);
     }
+
+    public static void writeToFile(String content) {
+        // Specify the file path in the /tmp directory
+        String filePath = "/tmp/myfile.txt";
+
+        // Create a File object
+        File file = new File(filePath);
+
+        // Try writing to the file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write(content);
+            System.out.println("File written successfully to " + file.getAbsolutePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 }

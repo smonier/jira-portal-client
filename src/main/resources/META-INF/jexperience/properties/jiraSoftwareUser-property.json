@@ -1,0 +1,27 @@
+{
+  "itemId": "jiraSoftwareUser",
+  "itemType": "propertyType",
+  "version": 3,
+  "target": "profiles",
+  "dateRanges": [],
+  "numericRanges": [],
+  "ipRanges": [],
+  "automaticMappingsFrom": [],
+  "multivalued": false,
+  "childPropertyTypes": [],
+  "metadata": {
+    "id": "jiraSoftwareUser",
+    "name": "jira Software User",
+    "tags": [],
+    "systemTags": [
+      "positionInCard.3",
+      "cardDataTag/_hwx0u57rg/3/Jira Case Management",
+      "hasCardDataTag"
+    ],
+    "enabled": true,
+    "missingPlugins": false,
+    "hidden": false,
+    "readOnly": false
+  },
+  "type": "boolean"
+}

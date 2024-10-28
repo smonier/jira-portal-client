@@ -10,4 +10,15 @@
  - instanceName (String)
  - projectName (String)
  - activateButton (boolean)
- - buttonLabel (String)
+ - buttonLabel (String) internationalized
+ - useUnomiProfileProperty (boolean)
+ - useJiraCustomField (boolean)
+
+[jpcmix:targetProject] mixin
+extends = jpcnt:jiraProjectIssuesList
+ - targetProjectKey (String)
+ - triggerStatusId (String)
+
+[jpcmix:pdfCreation] mixin
+extends = jpcnt:jiraProjectIssuesList
+ - folderName (String)

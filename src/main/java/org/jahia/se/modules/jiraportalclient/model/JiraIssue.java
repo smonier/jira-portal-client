@@ -3,6 +3,7 @@ package org.jahia.se.modules.jiraportalclient.model;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import static org.jahia.se.modules.jiraportalclient.functions.JiraUtils.jiraToHtml;
 
 
 @JsonDeserialize(using = JiraIssueDeserializer.class)
@@ -20,6 +21,8 @@ public class JiraIssue {
     private String status;
     private String dateCreated;
     private String dateModified;
+    private String marketNum;
+
 
 
 //  public JiraIssue(String type, String key, String summary, String assignee, String reporter, String priority, String status, String dateCreated, String dateModified, String priorityIconUrl, String typeIconUrl) {
@@ -37,6 +40,8 @@ public class JiraIssue {
         this.status = status;
         this.dateCreated = dateCreated;
         this.dateModified = dateModified;
+        this.marketNum = marketNum;
+
     }
 
 
@@ -54,7 +59,7 @@ public class JiraIssue {
     }
 
     public String getDescription() {
-        return description;
+        return jiraToHtml(description);
     }
 
     public String getAssignee() {
@@ -102,8 +107,14 @@ public class JiraIssue {
     }
 
     public String getTypeIconUrl() {
-        return typeIconUrl;
+        if (typeIconUrl.contains("10551")) {
+            return "/modules/jira-portal-client/images/order.png";
+        } else {
+            return typeIconUrl;
+        }
     }
+
+    public String getMarketNum() {return marketNum; }
 
     public void setType(String type) {
         this.type = type;
@@ -150,4 +161,6 @@ public class JiraIssue {
     public void setTypeIconUrl(String typeIconUrl) {
         this.typeIconUrl = typeIconUrl;
     }
+
+    public void setMarketNum(String marketNum) { this.marketNum = marketNum; }
 }

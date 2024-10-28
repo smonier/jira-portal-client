@@ -2,7 +2,6 @@
 <%@ taglib prefix="template" uri="http://www.jahia.org/tags/templateLib" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="jcr" uri="http://www.jahia.org/tags/jcr" %>
 <%@ taglib prefix="ui" uri="http://www.jahia.org/tags/uiComponentsLib" %>
 <%@ taglib prefix="functions" uri="http://www.jahia.org/tags/functions" %>
@@ -35,11 +34,6 @@
 <c:set var="jiraProject" value="${currentNode.properties['projectName'].string}"/>
 <c:set var="activateButton" value="${currentNode.properties['activateButton'].string}"/>
 <c:set var="buttonLabel" value="${currentNode.properties['buttonLabel'].string}"/>
-<c:set var="targetProjectKey" value="${currentNode.properties['targetProjectKey'].string}"/>
-<c:set var="activatePdfCreation" value="${currentNode.properties['activatePdfCreation'].getBoolean()}"/>
-<c:set var="useUnomiProfileProperty" value="${currentNode.properties['useUnomiProfileProperty'].getBoolean()}"/>
-<c:set var="useJiraCustomField" value="${currentNode.properties['useJiraCustomField'].getBoolean()}"/>
-
 <c:set var="context" value="${renderContext}"/>
 <c:choose>
     <c:when test="${useUnomiProfileProperty}">
@@ -59,6 +53,7 @@
 <jcr:nodeProperty var="email" node="${user}" name="j:email"/>
 <c:set var="loggedInUser" value="${firstName} ${lastName} (${email})"/>
 
+
 <div class="portal-header" id="tableContainer-${currentNode.UUID}">
     <div class="module_header">
         <div class="module_title">${currentNode.properties['jcr:title'].string}</div>
@@ -76,17 +71,17 @@
             <thead>
             <tr>
                 <th class="dt-control"></th>
-                <th><fmt:message key="table.header.type" /></th>
-                <th><fmt:message key="table.header.key" /></th>
-                <th><fmt:message key="table.header.title" /></th>
-                <th><fmt:message key="table.header.reporter" /></th>
-                <th><fmt:message key="table.header.assignee" /></th>
-                <th><fmt:message key="table.header.priority" /></th>
-                <th><fmt:message key="table.header.status" /></th>
-                <th><fmt:message key="table.header.changeStatus" /></th>
-                <th><fmt:message key="table.header.createdOn" /></th>
-                <th><fmt:message key="table.header.updatedOn" /></th>
-                <th><fmt:message key="table.header.action" /></th>
+                <th>Type</th>
+                <th>Key</th>
+                <th>Summary</th>
+                <th>EIN</th>
+                <th>Assignee</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Change Status</th>
+                <th>Created</th>
+                <th>Last Modified</th>
+                <th>Action</th>
             </tr>
             </thead>
             <tbody>
@@ -104,27 +99,20 @@
 
                 <tr class="main-row" data-description="${jiraIssue.getDescription()}<br/>${activityListFormatted}<br/>">
                     <td class="dt-control"></td>
-                    <td><img height="16" width="16" src="${jiraIssue.getTypeIconUrl()}" alt="${jiraIssue.getType()}"
-                             title="${jiraIssue.getType()}"/></td>
-                    <td>
-                        <a href="https://${jiraInstance}.atlassian.net/browse/${jiraIssue.getKey()}" target="_blank">${jiraIssue.getKey()}</a>
-                    </td>
+                    <td><img height="16" width="16" src="${jiraIssue.getTypeIconUrl()}" alt="${jiraIssue.getType()}" title="${jiraIssue.getType()}"/></td>
+                    <td><a href="https://${jiraInstance}.atlassian.net/browse/${jiraIssue.getKey()}">${jiraIssue.getKey()}</a></td>
                     <td>${jiraIssue.getSummary()}</td>
-                    <td>${jiraIssue.getReporter()}</td>
+                    <td>${jiraIssue.getEin()}</td>
                     <td>${jiraIssue.getAssignee()}</td>
-                    <td><img height="16" width="16" src="${jiraIssue.getPriorityIconUrl()}"
-                             alt="${jiraIssue.getPriority()}" title="${jiraIssue.getPriority()}"/></td>
+                    <td><img height="16" width="16" src="${jiraIssue.getPriorityIconUrl()}" alt="${jiraIssue.getPriority()}" title="${jiraIssue.getPriority()}"/></td>
                     <td>${jiraIssue.getStatus()}</td>
                     <td>
                         <c:url var="actionURL" value="${url.base}${currentNode.path}.requestJiraUpdate.do"/>
-                        <c:set var="triggerStatusId" value="${currentNode.properties['triggerStatusId'].string}"/>
 
-                        <select class="form-control-sm"
-                                onchange="updateIssueStatus('${jiraInstance}', '${jiraProject}', '${jiraIssue.getKey()}', this.value,'${actionURL}','${targetProjectKey}','${triggerStatusId}')">
-                            <option value=""><fmt:message key="select.option.selectStatus" /></option>
+                        <select onchange="updateIssueStatus('${jiraInstance}', '${jiraProject}', '${jiraIssue.getKey()}', this.value,'${actionURL}')">
+                            <option value="">Select Status</option>
                             <c:forEach items="${statusList}" var="status">
-                                <option value="${status.getId()}"
-                                        <c:if test="${status.getValue() eq jiraIssue.getStatus()}">selected</c:if>>
+                                <option value="${status.getId()}" <c:if test="${status.getValue() eq jiraIssue.getStatus()}">selected</c:if>>
                                         ${status.getValue()}
                                 </option>
                             </c:forEach>
@@ -133,29 +121,13 @@
                     <td>${jiraIssue.getDateCreated()}</td>
                     <td>${jiraIssue.getDateModified()}</td>
                     <td>
-                        <c:choose>
-                            <c:when test="${jcr:isNodeType(currentNode, 'jpcmix:pdfCreation')}">
-                                <c:set var="folderName" value="${currentNode.properties['folderName'].string}"/>
-
-                                <!-- Display the select when activatePdfCreation is true -->
-                                <c:url var="actionURL2" value="${url.base}${currentNode.path}.generatePdfFromHtml.do"/>
-                                <select class="form-control-sm"
-                                        onchange="handleActionChange(this, '${jiraIssue.getKey()}', '${jiraInstance}', '${jiraProject}', '${actionURL2}', '${folderName}')">
-                                    <option value="" disabled selected><fmt:message key="select.option.selectAction" /></option>
-                                    <option value="addComment"><fmt:message key="select.option.comment" /></option>
-                                    <option value="createInvoice"><fmt:message key="select.option.createInvoice" /></option>
-                                </select>
-                            </c:when>
-                            <c:otherwise>
-                                <!-- Display the button when activatePdfCreation is false -->
-                                <button type="button" class="btn-sm btn-primary"
-                                        data-toggle="modal"
-                                        data-target="#commentModal"
-                                        onclick="openCommentModal('${jiraIssue.getKey()}', '${jiraInstance}', '${jiraProject}')">
-                                    <fmt:message key="select.option.comment" />
-                                </button>
-                            </c:otherwise>
-                        </c:choose>
+                        <!-- Button to trigger the modal -->
+                        <button type="button" class="btn-sm btn-primary"
+                                data-toggle="modal"
+                                data-target="#commentModal"
+                                onclick="openCommentModal('${jiraIssue.getKey()}', '${jiraInstance}', '${jiraProject}')">
+                            Add Comment
+                        </button>
                     </td>
                 </tr>
 
@@ -166,14 +138,11 @@
     </div>
 </div>
 <!-- Modal Structure -->
-<div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel"
-     aria-hidden="true">
+<div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="commentModalLabel">
-                    <fmt:message key="commentModal.label.addCommentTo"/>&nbsp;<span id="issueKeyDisplay"></span>
-                </h5>
+                <h5 class="modal-title" id="commentModalLabel">Add Comment to <span id="issueKeyDisplay"></span></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -182,14 +151,11 @@
                 <!-- Form inside the modal -->
                 <form id="commentForm">
                     <div class="form-group">
-                        <label for="commentText"><fmt:message key="commentModal.label.comment"/></label>
-                        <textarea class="form-control" id="commentText" name="commentText" rows="4"
-                                  placeholder="<fmt:message key='commentModal.placeholder.enterComment'/>" required></textarea>
+                        <label for="commentText">Comment:</label>
+                        <textarea class="form-control" id="commentText" name="commentText" rows="4" placeholder="Enter your comment here" required></textarea>
                     </div>
                     <c:url var="actionURL" value="${url.base}${currentNode.path}.requestJiraUpdate.do"/>
-                    <button type="button" class="btn btn-primary"
-                            onclick="addNewComment('${actionURL}','${loggedInUser}')">
-                        <fmt:message key="commentModal.button.add"/>
+                    <button type="button" class="btn btn-primary" onclick="addNewComment('${actionURL}','${loggedInUser}')">Add Comment
                     </button>
                 </form>
             </div>
@@ -197,51 +163,38 @@
     </div>
 </div>
 <!-- Modal -->
-<div class="modal fade" id="newJiraModal" tabindex="-1" role="dialog" aria-labelledby="newJiraModalLabel"
-     aria-hidden="true">
+<div class="modal fade" id="newJiraModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="newJiraModalLabel">
-                    <fmt:message key="newJiraModal.label.title" />
-                </h5>
+                <h5 class="modal-title" id="exampleModalLabel">Create a ${buttonLabel}</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="container mt-5">
-                    <h2><fmt:message key="newJiraModal.label.heading" /></h2>
+                    <h2>Create New Change Request</h2>
                     <form id="jiraIssueForm">
                         <!-- Summary Field -->
                         <div class="form-group">
-                            <label for="summary"><fmt:message key="newJiraModal.label.summary" /></label>
-                            <input type="text" class="form-control" id="summary" name="summary"
-                                   placeholder="<fmt:message key='newJiraModal.placeholder.summary'/>" required>
+                            <label for="summary">Summary</label>
+                            <input type="text" class="form-control" id="summary" name="summary" placeholder="Enter issue summary" required>
                         </div>
 
                         <!-- Description Field -->
                         <div class="form-group">
-                            <label for="description"><fmt:message key="newJiraModal.label.description" /></label>
-                            <textarea class="form-control" id="description" name="description" rows="4"
-                                      placeholder="<fmt:message key='newJiraModal.placeholder.description'/>" required></textarea>
-                        </div>
-
-                        <!-- Marché Field -->
-                        <div class="form-group">
-                            <label for="marketNum"><fmt:message key="newJiraModal.label.market" /></label>
-                            <input type="text" class="form-control" id="marketNum" name="marketNum"
-                                   placeholder="<fmt:message key='newJiraModal.placeholder.market'/>" required>
+                            <label for="description">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="4" placeholder="Enter issue description" required></textarea>
                         </div>
 
                         <!-- Issue Type Dropdown -->
                         <div class="form-group">
-                            <label for="issueType"><fmt:message key="newJiraModal.label.type" /></label>
+                            <label for="issueType">Issue Type</label>
                             <select class="form-control" id="issueType" name="issueType" required>
-                                <option value=""><fmt:message key="newJiraModal.option.selectType" /></option>
+                                <option value="">Select Issue Type</option>
                                 <!-- JSP Code to Populate Issue Types -->
-                                <c:forEach items="${jira:getIssueTypesForProject(jiraInstance, jiraProject)}"
-                                           var="issueType">
+                                <c:forEach items="${jira:getIssueTypesForProject(jiraInstance, jiraProject)}" var="issueType">
                                     <option value="${issueType.getLabel()}">${issueType.getLabel()}</option>
                                 </c:forEach>
                             </select>
@@ -249,35 +202,29 @@
 
                         <!-- Priority Dropdown -->
                         <div class="form-group">
-                            <label for="priority"><fmt:message key="newJiraModal.label.priority" /></label>
+                            <label for="priority">Priority</label>
                             <select class="form-control" id="priority" name="priority" required>
-                                <option value=""><fmt:message key="newJiraModal.option.selectPriority" /></option>
-                                <option value="Highest"><fmt:message key="newJiraModal.option.priorityHighest" /></option>
-                                <option value="High"><fmt:message key="newJiraModal.option.priorityHigh" /></option>
-                                <option value="Medium"><fmt:message key="newJiraModal.option.priorityMedium" /></option>
-                                <option value="Low"><fmt:message key="newJiraModal.option.priorityLow" /></option>
-                                <option value="Lowest"><fmt:message key="newJiraModal.option.priorityLowest" /></option>
+                                <option value="">Select Priority</option>
+                                <option value="Highest">Highest</option>
+                                <option value="High">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low">Low</option>
+                                <option value="Lowest">Lowest</option>
                             </select>
                         </div>
 
                         <!-- Submit Button -->
                         <c:url var="actionURL" value="${url.base}${currentNode.path}.requestJiraUpdate.do"/>
-                        <button type="button" class="btn btn-primary" data-dismiss="modal"
-                                onclick="submitNewIssue('${jiraInstance}','${jiraProject}','${actionURL}')">
-                            <fmt:message key="newJiraModal.button.submit" />
-                        </button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="submitNewIssue('${jiraInstance}','${jiraProject}','${actionURL}')">Create Issue</button>
                     </form>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    <fmt:message key="newJiraModal.button.close" />
-                </button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
-
 <script>
     $(document).ready(function () {
         // Initialize DataTables
@@ -287,9 +234,9 @@
             bInfo: true,
             scrollY: '50vh', // Set a reasonable scroll height
             scrollCollapse: true,
-            columnDefs: [{width: "5%", targets: 0}],
+            columnDefs: [{ width: "5%", targets: 0 }],
             language: {
-                emptyTable: 'No Issues found'
+                emptyTable: 'No Tickets found'
             },
             lengthChange: false,
             pageLength: 5,

@@ -13,4 +13,27 @@
     padding: 10px; /* Add padding to make it look nice */
     word-wrap: break-word; /* Ensure text wraps within the container */
     white-space: normal; /* Override any inherited nowrap styles */
+    text-align: left !important;
+}
+.module_header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 10px 0px;
+    vertical-align: middle;
+}
+.module_title {
+    flex-grow: 0;
+    padding-right: 10px;
+    font-weight: 400;
+    font-size: 22px;
+    line-height: 30.9px;
+    margin-bottom: .5rem;
+    font-family: inherit;
+    color: inherit;
+}
+.module_divider {
+    flex-grow: 1;
+    height: 2px;
+    background-color: #666;
 }
