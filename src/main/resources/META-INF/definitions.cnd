@@ -10,7 +10,7 @@
  - instanceName (String)
  - projectName (String)
  - activateButton (boolean)
- - buttonLabel (String)
+ - buttonLabel (String) internationalized
  - useUnomiProfileProperty (boolean)
  - useJiraCustomField (boolean)
 

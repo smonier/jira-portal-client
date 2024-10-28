@@ -107,7 +107,7 @@
                     <td><img height="16" width="16" src="${jiraIssue.getTypeIconUrl()}" alt="${jiraIssue.getType()}"
                              title="${jiraIssue.getType()}"/></td>
                     <td>
-                        <a href="https://${jiraInstance}.atlassian.net/browse/${jiraIssue.getKey()}">${jiraIssue.getKey()}</a>
+                        <a href="https://${jiraInstance}.atlassian.net/browse/${jiraIssue.getKey()}" target="_blank">${jiraIssue.getKey()}</a>
                     </td>
                     <td>${jiraIssue.getSummary()}</td>
                     <td>${jiraIssue.getMarketNum()}</td>
