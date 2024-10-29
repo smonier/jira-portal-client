@@ -3,6 +3,8 @@ package org.jahia.se.modules.jiraportalclient.model;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
+
 import static org.jahia.se.modules.jiraportalclient.functions.JiraUtils.jiraToHtml;
 
 
@@ -97,6 +99,32 @@ public class JiraIssue {
             SimpleDateFormat sdf2 = new SimpleDateFormat("E, dd MMM yyyy");
             String formatedDate = sdf2.format(sdf1.parse(ds1));
             return formatedDate;
+        } else {
+            return null;
+        }
+    }
+
+    public String getDateCreated(String localeStr) throws ParseException {
+        if (dateCreated != null && !dateCreated.equals("null")) {
+            String ds1 = dateCreated.substring(0, 10);
+            SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+            Locale locale = new Locale(localeStr);
+            SimpleDateFormat sdf2 = new SimpleDateFormat("E dd MMM yyyy", locale); // Use locale from parameter
+            String formattedDate = sdf2.format(sdf1.parse(ds1));
+            return formattedDate;
+        } else {
+            return null;
+        }
+    }
+
+    public String getDateModified(String localeStr) throws ParseException {
+        if (dateModified != null && !dateModified.equals("null")) {
+            String ds1 = dateModified.substring(0, 10);
+            SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+            Locale locale = new Locale(localeStr);
+            SimpleDateFormat sdf2 = new SimpleDateFormat("E dd MMM yyyy", locale); // Use locale from parameter
+            String formattedDate = sdf2.format(sdf1.parse(ds1));
+            return formattedDate;
         } else {
             return null;
         }

@@ -22,3 +22,4 @@ extends = jpcnt:jiraProjectIssuesList
 [jpcmix:pdfCreation] mixin
 extends = jpcnt:jiraProjectIssuesList
  - folderName (String)
+ - logoPdf (weakreference, picker[type='image']) < 'jmix:image'

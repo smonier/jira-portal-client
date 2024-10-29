@@ -34,7 +34,7 @@ import java.util.Map;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import static org.jahia.se.modules.jiraportalclient.functions.JiraUtils.jiraToHtml;
+import static org.jahia.se.modules.jiraportalclient.functions.JiraUtils.*;
 
 @Component(service = Action.class, immediate = true)
 public class PdfGenerationAction extends Action {
@@ -89,18 +89,21 @@ public class PdfGenerationAction extends Action {
 
         LOGGER.info("Generating PDF for issue key: {} in instance: {}", issueKey, jiraInstance);
         String pdfFileName = getParameter(parameters, "pdfFileName");
+        String imagePath = getParameter(parameters, "imagePath");
+
 
         JCRUserNode user = JahiaUserManagerService.getInstance().lookupUserByPath(renderContext.getUser().getLocalPath());
         JCRNodeWrapper userNode = session.getNode(user.getPath());
         // Get HTML content from Jira issue
         String htmlContent = jiraToHtml(jiraIssueService.getIssueDescription(jiraInstance, issueKey));
         LOGGER.info("HTML content retrieved for issue {}: {}", issueKey, htmlContent);
-        String invoiceContent = generateInvoice(pdfFileName,htmlContent,userNode);
+        String invoiceContent = generateInvoice(pdfFileName, htmlContent, userNode, imagePath);
         // Generate PDF from HTML
         ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream();
         try {
             PdfWriter writer = new PdfWriter(pdfOutputStream);
             PdfDocument pdfDoc = new PdfDocument(writer);
+            LOGGER.info("HTML content to generate PDF : {}", invoiceContent);
 
             HtmlConverter.convertToPdf(invoiceContent, pdfDoc.getWriter());
            // pdfDoc.close();
@@ -176,7 +179,9 @@ public class PdfGenerationAction extends Action {
         });
     }
 
-    private String generateInvoice(String pdfFileName, String itemsDescription,JCRNodeWrapper userNode) {
+    private String generateInvoice(String pdfFileName, String itemsDescription,JCRNodeWrapper userNode, String imagePath) throws RepositoryException {
+        LOGGER.info("LOGO URL for PDF : {}", imagePath);
+
         String invoiceContent =
                 "<!DOCTYPE html>\n" +
                         "<html lang=\"fr\">\n" +
@@ -186,7 +191,7 @@ public class PdfGenerationAction extends Action {
                         "    <title>Facture</title>\n" +
                         "</head>\n" +
                         "<body>\n" +
-                        "    <img src=\"https://www.ugap.fr/_nuxt/img/logo_ugap.02a35b1.svg\" alt=\"Logo de l'entreprise\">\n" +
+                        "    <img src=\"" + encodeImageToBase64(imagePath) + "\" alt=\"Logo de l'entreprise\" style=\"max-width:100%; width:200px; height:auto;\">\n" +
                         "    <!-- Invoice Header -->\n" +
                         "    <h1>Facture</h1>\n" +
                         "    <p><strong>"+ userNode.getPropertyAsString("j:firstName") +" "+ userNode.getPropertyAsString("j:lastName")+"</strong></p>\n" +
@@ -230,5 +235,21 @@ public class PdfGenerationAction extends Action {
 
         // Format the current date
         return currentDate.format(formatter);
+    }
+
+    public static JCRNodeWrapper getNodeByPath(String path) {
+        try {
+            return JCRTemplate.getInstance().doExecuteWithSystemSessionAsUser(null, Constants.EDIT_WORKSPACE, null, session -> {
+                if (session.nodeExists(path)) {
+                    return (JCRNodeWrapper) session.getNode(path);
+                } else {
+                    System.out.println("Node does not exist at path: " + path);
+                    return null;
+                }
+            });
+        } catch (RepositoryException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

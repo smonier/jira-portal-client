@@ -5,14 +5,32 @@ import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.data.MutableDataSet;
+import org.apache.commons.io.IOUtils;
+import org.jahia.api.Constants;
+import org.jahia.services.content.JCRNodeWrapper;
+import org.jahia.services.content.JCRTemplate;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Base64;
+import javax.imageio.ImageIO;
+import javax.jcr.RepositoryException;
+import java.awt.image.BufferedImage;
+import java.net.URLConnection;
 import java.util.Arrays;
 
 public class JiraUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(JiraUtils.class);
 
     // 1. Convert Jira Markdown to HTML
     public static String jiraToHtml(String jiraMarkdown) {
@@ -182,5 +200,30 @@ public class JiraUtils {
         }
 
         return jiraMarkdown.toString();
+    }
+
+    public static String encodeImageToBase64(final String jcrPath) throws RepositoryException {
+        // Check if the path is null before proceeding
+        if (jcrPath == null || jcrPath.trim().isEmpty()) {
+            logger.warn("Image path is null or empty. Skipping image encoding.");
+            return null;
+        }
+
+        return JCRTemplate.getInstance().doExecuteWithSystemSessionAsUser(null, Constants.EDIT_WORKSPACE, null, session -> {
+            if (session.nodeExists(jcrPath)) {
+                JCRNodeWrapper fileNode = (JCRNodeWrapper) session.getNode(jcrPath);
+                String mimeType = fileNode.getFileContent().getContentType();  // Extract MIME type
+
+                try (InputStream inputStream = fileNode.getFileContent().downloadFile()) {
+                    byte[] imageBytes = IOUtils.toByteArray(inputStream);
+                    return "data:" + mimeType + ";base64," + Base64.getEncoder().encodeToString(imageBytes);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                System.out.println("Node does not exist at path: " + jcrPath);
+                return null;
+            }
+        });
     }
 }

@@ -1,4 +1,4 @@
-function handleActionChange(selectElement, issueKey, jiraInstance, jiraProject, actionUrl, folderName) {
+function handleActionChange(selectElement, issueKey, jiraInstance, jiraProject, actionUrl, folderName, imagePath) {
     var selectedValue = selectElement.value;
 
     // Check the selected option and perform the corresponding action
@@ -9,7 +9,7 @@ function handleActionChange(selectElement, issueKey, jiraInstance, jiraProject, 
     } else if (selectedValue === 'createInvoice') {
         document.getElementById('spinner-overlay').style.display = 'block';
         // Add your logic for creating an invoice here
-        createInvoice(issueKey, jiraInstance, jiraProject, actionUrl,folderName);
+        createInvoice(issueKey, jiraInstance, jiraProject, actionUrl,folderName, imagePath);
     }
 
     // Reset the select after the action is triggered
@@ -17,7 +17,7 @@ function handleActionChange(selectElement, issueKey, jiraInstance, jiraProject, 
 }
 
 // Example function for creating an invoice
-function createInvoice(issueKey, jiraInstance, jiraProject, actionUrl, folderName) {
+function createInvoice(issueKey, jiraInstance, jiraProject, actionUrl, folderName, imagePath) {
     setTimeout(async function () {
         var pdfFileName = issueKey + "-" + generateTimestamp();
         const formData = new FormData();
@@ -26,10 +26,13 @@ function createInvoice(issueKey, jiraInstance, jiraProject, actionUrl, folderNam
         formData.append('pdfFileName', pdfFileName);
         formData.append('issueKey', issueKey);
         formData.append('folderName', folderName);
+        formData.append('imagePath', imagePath);
+
 
 
         console.log("Create PDF action triggered for", pdfFileName);
         console.log("Create PDF action triggered for folder", folderName);
+        console.log("Create PDF action triggered for logo", imagePath);
 
         // Simulate an async operation (e.g., AJAX call)
         // You should replace this with your actual AJAX or asynchronous logic

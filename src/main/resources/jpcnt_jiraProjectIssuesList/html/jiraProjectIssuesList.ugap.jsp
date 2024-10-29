@@ -39,7 +39,8 @@
 <c:set var="activatePdfCreation" value="${currentNode.properties['activatePdfCreation'].getBoolean()}"/>
 <c:set var="useUnomiProfileProperty" value="${currentNode.properties['useUnomiProfileProperty'].getBoolean()}"/>
 <c:set var="useJiraCustomField" value="${currentNode.properties['useJiraCustomField'].getBoolean()}"/>
-
+<c:set var="logoPdf" value="${currentNode.properties['logoPdf'].node}"/>
+<c:set var="language" value="${currentResource.locale.language}"/>
 <c:set var="context" value="${renderContext}"/>
 <c:choose>
     <c:when test="${useUnomiProfileProperty}">
@@ -130,8 +131,8 @@
                             </c:forEach>
                         </select>
                     </td>
-                    <td>${jiraIssue.getDateCreated()}</td>
-                    <td>${jiraIssue.getDateModified()}</td>
+                    <td>${jiraIssue.getDateCreated(language)}</td>
+                    <td>${jiraIssue.getDateModified(language)}</td>
                     <td>
                         <c:choose>
                             <c:when test="${jcr:isNodeType(currentNode, 'jpcmix:pdfCreation')}">
@@ -139,8 +140,10 @@
 
                                 <!-- Display the select when activatePdfCreation is true -->
                                 <c:url var="actionURL2" value="${url.base}${currentNode.path}.generatePdfFromHtml.do"/>
+                                <c:url var="imagePath" value="${logoPdf.path}"/>
+
                                 <select class="form-control-sm"
-                                        onchange="handleActionChange(this, '${jiraIssue.getKey()}', '${jiraInstance}', '${jiraProject}', '${actionURL2}', '${folderName}')">
+                                        onchange="handleActionChange(this, '${jiraIssue.getKey()}', '${jiraInstance}', '${jiraProject}', '${actionURL2}', '${folderName}', '${imagePath}')">
                                     <option value="" disabled selected><fmt:message key="select.option.selectAction" /></option>
                                     <option value="addComment"><fmt:message key="select.option.comment" /></option>
                                     <option value="createInvoice"><fmt:message key="select.option.createInvoice" /></option>
